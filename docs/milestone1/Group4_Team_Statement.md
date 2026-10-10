@@ -6,10 +6,10 @@ We propose to build a database-backed information system for CloudNine Systems. 
 For Milestone 1, our shared repository will contain the ERD PDF, draft analysis report and this team statement. Each member will review the full design and be able to explain a reservation-to-invoice example, rather than understanding only an assigned section.
 ## Roster and equitable division
 The following four slots are provisional work packages, not a confirmed member count. Replace them with actual names and redistribute if the group has a different size.
-Member A: [name pending]. Lead clients, memberships, projects, credentials and access; draft the corresponding report sections. Review Member C's reservation and deployment work.
+Member A: [name pending]. Lead clients, user accounts, memberships and projects; draft the corresponding report sections. Review Member C's reservation and deployment work.
 Member B: [name pending]. Lead geography, resources, configurations, capacities, dependencies and availability. Review Member D's billing and normalization work.
-Member C: [name pending]. Lead reservations, revisions, deployments, allocations and metering. Review Member A's people and access work.
-Member D: [name pending]. Lead pricing, cost sharing, invoices and payments. Review Member B's resource and history work. Because this package is broad, split pricing and payments into separate issues and transfer one to another member if estimates exceed the group's target workload.
+Member C: [name pending]. Lead reservations, revisions, deployments, allocations and metering. Review Member A's client and people work.
+Member D: [name pending]. Lead service rates, usage charges, cost sharing and invoices. Review Member B's resource and history work. Because this package is broad, split pricing and invoicing into separate issues and transfer one to another member if estimates exceed the group's target workload.
 All members: review cross-module relationships and 3NF reasoning; contribute to the analysis; verify the final PDFs. Integration and repository administration rotate between milestones and count as assigned work. No person is permanently responsible for all documentation, testing or cleanup.
 ## Accountability and visibility
 Use one GitHub Issue per concrete task, with an owner, reviewer, acceptance criteria, estimated effort and due date. Agree on actual due dates after confirming the course deadline. The board will use To do, In progress, Review and Done. A task is complete when its artifact is linked and its reviewer has checked it.

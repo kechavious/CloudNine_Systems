@@ -4,8 +4,6 @@
       "CLIENT",
       "USER_ACCOUNT",
       "CLIENT_MEMBERSHIP",
-      "CLIENT_RELATIONSHIP",
-      "STAFF",
       "PROJECT"
     ],
     "Infrastructure and history": [
@@ -15,54 +13,34 @@
       "RESOURCE_TYPE",
       "RESOURCE",
       "RESOURCE_CONFIGURATION",
-      "METRIC",
-      "CONFIGURATION_CAPACITY",
       "RESOURCE_STATE",
       "RESOURCE_RELATIONSHIP"
     ],
-    "Reservations and agreements": [
-      "CONTRACT",
+    "Reservations and revisions": [
       "RESERVATION",
-      "RESERVATION_CONTRACT",
       "RESERVATION_REVISION",
       "RESERVATION_ITEM",
-      "REQUIREMENT_CAPACITY",
-      "RESERVATION_SERVICE",
-      "COMMITMENT"
+      "RESERVATION_SERVICE"
     ],
-    "Deployment and consumption": [
+    "Deployments and assignments": [
       "DEPLOYMENT",
       "DEPLOYMENT_EVENT",
-      "WORKLOAD",
       "RESOURCE_ALLOCATION",
-      "ALLOCATION_CAPACITY",
+      "DEPLOYMENT_SERVICE"
+    ],
+    "Services, rates and metering": [
       "SERVICE",
-      "RESOURCE_SERVICE",
-      "DEPLOYMENT_SERVICE",
+      "SERVICE_RATE",
       "USAGE_RECORD"
     ],
-    "Pricing and charge allocation": [
-      "RATE_PLAN",
-      "RATE_RULE",
-      "CONTRACT_RATE_PLAN",
+    "Billing and invoices": [
       "BILLING_ACCOUNT",
       "BILLING_RULE",
       "BILLING_RULE_SHARE",
       "CHARGE",
-      "CHARGE_USAGE",
-      "CHARGE_SHARE"
-    ],
-    "Invoices and payments": [
+      "CHARGE_SHARE",
       "INVOICE",
-      "INVOICE_LINE",
-      "PAYMENT",
-      "PAYMENT_APPLICATION"
-    ],
-    "Access and audit": [
-      "CREDENTIAL",
-      "ACCESS_GRANT",
-      "AUDIT_EVENT",
-      "AUTHENTICATION_EVENT"
+      "INVOICE_LINE"
     ]
   },
   "tables": {
@@ -73,6 +51,14 @@
         "pk": true,
         "fk": null,
         "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "parent_client_id",
+        "type": "int",
+        "pk": false,
+        "fk": "CLIENT",
+        "nullable": true,
         "unique": false
       },
       {
@@ -134,6 +120,22 @@
         "unique": true
       },
       {
+        "name": "account_kind",
+        "type": "text",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "staff_role",
+        "type": "text",
+        "pk": false,
+        "fk": null,
+        "nullable": true,
+        "unique": false
+      },
+      {
         "name": "status",
         "type": "text",
         "pk": false,
@@ -189,82 +191,6 @@
         "pk": false,
         "fk": null,
         "nullable": true,
-        "unique": false
-      }
-    ],
-    "CLIENT_RELATIONSHIP": [
-      {
-        "name": "relationship_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "parent_client_id",
-        "type": "int",
-        "pk": false,
-        "fk": "CLIENT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "child_client_id",
-        "type": "int",
-        "pk": false,
-        "fk": "CLIENT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "relationship_type",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_from",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_to",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      }
-    ],
-    "STAFF": [
-      {
-        "name": "staff_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "user_id",
-        "type": "int",
-        "pk": false,
-        "fk": "USER_ACCOUNT",
-        "nullable": false,
-        "unique": true
-      },
-      {
-        "name": "staff_role",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
         "unique": false
       }
     ],
@@ -490,6 +416,38 @@
         "unique": false
       },
       {
+        "name": "vcpu_count",
+        "type": "int",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "memory_gib",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "storage_gib",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "network_gbps",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
         "name": "valid_from",
         "type": "timestamp",
         "pk": false,
@@ -503,58 +461,6 @@
         "pk": false,
         "fk": null,
         "nullable": true,
-        "unique": false
-      }
-    ],
-    "METRIC": [
-      {
-        "name": "metric_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "name",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": true
-      },
-      {
-        "name": "unit",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "CONFIGURATION_CAPACITY": [
-      {
-        "name": "configuration_id",
-        "type": "int",
-        "pk": true,
-        "fk": "RESOURCE_CONFIGURATION",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "metric_id",
-        "type": "int",
-        "pk": true,
-        "fk": "METRIC",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "capacity",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
         "unique": false
       }
     ],
@@ -608,10 +514,10 @@
         "unique": false
       },
       {
-        "name": "recorded_by_staff_id",
+        "name": "recorded_by_user_id",
         "type": "int",
         "pk": false,
-        "fk": "STAFF",
+        "fk": "USER_ACCOUNT",
         "nullable": true,
         "unique": false
       }
@@ -666,56 +572,6 @@
         "unique": false
       }
     ],
-    "CONTRACT": [
-      {
-        "name": "contract_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "client_id",
-        "type": "int",
-        "pk": false,
-        "fk": "CLIENT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "starts_at",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "ends_at",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "sla_note",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "priority_note",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
     "RESERVATION": [
       {
         "name": "reservation_id",
@@ -748,23 +604,13 @@
         "fk": null,
         "nullable": false,
         "unique": false
-      }
-    ],
-    "RESERVATION_CONTRACT": [
-      {
-        "name": "reservation_id",
-        "type": "int",
-        "pk": true,
-        "fk": "RESERVATION",
-        "nullable": false,
-        "unique": false
       },
       {
-        "name": "contract_id",
-        "type": "int",
+        "name": "agreement_note",
+        "type": "text",
         "pk": false,
-        "fk": "CONTRACT",
-        "nullable": false,
+        "fk": null,
+        "nullable": true,
         "unique": false
       }
     ],
@@ -834,10 +680,10 @@
         "unique": false
       },
       {
-        "name": "approved_by_staff_id",
+        "name": "approved_by_user_id",
         "type": "int",
         "pk": false,
-        "fk": "STAFF",
+        "fk": "USER_ACCOUNT",
         "nullable": true,
         "unique": false
       }
@@ -876,6 +722,38 @@
         "unique": false
       },
       {
+        "name": "min_vcpu",
+        "type": "int",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "min_memory_gib",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "min_storage_gib",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "min_network_gbps",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
         "name": "preferred_region_id",
         "type": "int",
         "pk": false,
@@ -908,32 +786,6 @@
         "unique": false
       }
     ],
-    "REQUIREMENT_CAPACITY": [
-      {
-        "name": "reservation_item_id",
-        "type": "int",
-        "pk": true,
-        "fk": "RESERVATION_ITEM",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "metric_id",
-        "type": "int",
-        "pk": true,
-        "fk": "METRIC",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "minimum_capacity",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
     "RESERVATION_SERVICE": [
       {
         "name": "reservation_item_id",
@@ -954,64 +806,6 @@
       {
         "name": "quantity",
         "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "COMMITMENT": [
-      {
-        "name": "commitment_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "reservation_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RESERVATION",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "billing_account_id",
-        "type": "int",
-        "pk": false,
-        "fk": "BILLING_ACCOUNT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "commitment_type",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "required_amount",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "status",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "terms_note",
-        "type": "text",
         "pk": false,
         "fk": null,
         "nullable": false,
@@ -1045,6 +839,14 @@
       },
       {
         "name": "name",
+        "type": "text",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "workload_note",
         "type": "text",
         "pk": false,
         "fk": null,
@@ -1142,40 +944,6 @@
         "unique": false
       }
     ],
-    "WORKLOAD": [
-      {
-        "name": "workload_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "deployment_id",
-        "type": "int",
-        "pk": false,
-        "fk": "DEPLOYMENT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "name",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "workload_type",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
     "RESOURCE_ALLOCATION": [
       {
         "name": "allocation_id",
@@ -1206,6 +974,14 @@
         "type": "int",
         "pk": false,
         "fk": "RESOURCE_CONFIGURATION",
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "capacity_fraction",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
         "nullable": false,
         "unique": false
       },
@@ -1250,96 +1026,10 @@
         "unique": false
       },
       {
-        "name": "assigned_by_staff_id",
+        "name": "assigned_by_user_id",
         "type": "int",
         "pk": false,
-        "fk": "STAFF",
-        "nullable": true,
-        "unique": false
-      }
-    ],
-    "ALLOCATION_CAPACITY": [
-      {
-        "name": "allocation_id",
-        "type": "int",
-        "pk": true,
-        "fk": "RESOURCE_ALLOCATION",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "metric_id",
-        "type": "int",
-        "pk": true,
-        "fk": "METRIC",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "allocated_capacity",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "SERVICE": [
-      {
-        "name": "service_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "name",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": true
-      },
-      {
-        "name": "service_type",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "RESOURCE_SERVICE": [
-      {
-        "name": "resource_id",
-        "type": "int",
-        "pk": true,
-        "fk": "RESOURCE",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "service_id",
-        "type": "int",
-        "pk": true,
-        "fk": "SERVICE",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_from",
-        "type": "timestamp",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_to",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
+        "fk": "USER_ACCOUNT",
         "nullable": true,
         "unique": false
       }
@@ -1386,6 +1076,82 @@
         "unique": false
       }
     ],
+    "SERVICE": [
+      {
+        "name": "service_id",
+        "type": "int",
+        "pk": true,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": true
+      },
+      {
+        "name": "service_type",
+        "type": "text",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "billing_unit",
+        "type": "text",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      }
+    ],
+    "SERVICE_RATE": [
+      {
+        "name": "service_rate_id",
+        "type": "int",
+        "pk": true,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "service_id",
+        "type": "int",
+        "pk": false,
+        "fk": "SERVICE",
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "valid_from",
+        "type": "timestamp",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      },
+      {
+        "name": "valid_to",
+        "type": "timestamp",
+        "pk": false,
+        "fk": null,
+        "nullable": true,
+        "unique": false
+      },
+      {
+        "name": "unit_price",
+        "type": "decimal",
+        "pk": false,
+        "fk": null,
+        "nullable": false,
+        "unique": false
+      }
+    ],
     "USAGE_RECORD": [
       {
         "name": "usage_id",
@@ -1396,27 +1162,19 @@
         "unique": false
       },
       {
+        "name": "deployment_service_id",
+        "type": "int",
+        "pk": false,
+        "fk": "DEPLOYMENT_SERVICE",
+        "nullable": false,
+        "unique": false
+      },
+      {
         "name": "allocation_id",
         "type": "int",
         "pk": false,
         "fk": "RESOURCE_ALLOCATION",
         "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "deployment_service_id",
-        "type": "int",
-        "pk": false,
-        "fk": "DEPLOYMENT_SERVICE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "metric_id",
-        "type": "int",
-        "pk": false,
-        "fk": "METRIC",
-        "nullable": false,
         "unique": false
       },
       {
@@ -1465,205 +1223,7 @@
         "pk": false,
         "fk": "USAGE_RECORD",
         "nullable": true,
-        "unique": false
-      }
-    ],
-    "RATE_PLAN": [
-      {
-        "name": "rate_plan_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "name",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
         "unique": true
-      }
-    ],
-    "RATE_RULE": [
-      {
-        "name": "rate_rule_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "rate_plan_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RATE_PLAN",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "resource_type_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RESOURCE_TYPE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "service_id",
-        "type": "int",
-        "pk": false,
-        "fk": "SERVICE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "region_id",
-        "type": "int",
-        "pk": false,
-        "fk": "REGION",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "metric_id",
-        "type": "int",
-        "pk": false,
-        "fk": "METRIC",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "performance_tier",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "valid_from",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_to",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "hour_start",
-        "type": "int",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "hour_end",
-        "type": "int",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "duration_min_hours",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "duration_max_hours",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "quantity_min",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "quantity_max",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "unit_price",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "discount_fraction",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "precedence",
-        "type": "int",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "CONTRACT_RATE_PLAN": [
-      {
-        "name": "contract_id",
-        "type": "int",
-        "pk": true,
-        "fk": "CONTRACT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_from",
-        "type": "timestamp",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "rate_plan_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RATE_PLAN",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_to",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
       }
     ],
     "BILLING_ACCOUNT": [
@@ -1710,27 +1270,11 @@
         "unique": false
       },
       {
-        "name": "client_id",
-        "type": "int",
-        "pk": false,
-        "fk": "CLIENT",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "project_id",
-        "type": "int",
-        "pk": false,
-        "fk": "PROJECT",
-        "nullable": true,
-        "unique": false
-      },
-      {
         "name": "deployment_id",
         "type": "int",
         "pk": false,
         "fk": "DEPLOYMENT",
-        "nullable": true,
+        "nullable": false,
         "unique": false
       },
       {
@@ -1794,11 +1338,27 @@
         "unique": false
       },
       {
-        "name": "deployment_id",
+        "name": "usage_id",
         "type": "int",
         "pk": false,
-        "fk": "DEPLOYMENT",
-        "nullable": false,
+        "fk": "USAGE_RECORD",
+        "nullable": true,
+        "unique": true
+      },
+      {
+        "name": "deployment_service_id",
+        "type": "int",
+        "pk": false,
+        "fk": "DEPLOYMENT_SERVICE",
+        "nullable": true,
+        "unique": false
+      },
+      {
+        "name": "service_rate_id",
+        "type": "int",
+        "pk": false,
+        "fk": "SERVICE_RATE",
+        "nullable": true,
         "unique": false
       },
       {
@@ -1810,10 +1370,10 @@
         "unique": false
       },
       {
-        "name": "authorized_by_staff_id",
+        "name": "authorized_by_user_id",
         "type": "int",
         "pk": false,
-        "fk": "STAFF",
+        "fk": "USER_ACCOUNT",
         "nullable": true,
         "unique": false
       },
@@ -1854,32 +1414,6 @@
         "type": "timestamp",
         "pk": false,
         "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "CHARGE_USAGE": [
-      {
-        "name": "charge_id",
-        "type": "int",
-        "pk": true,
-        "fk": "CHARGE",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "usage_id",
-        "type": "int",
-        "pk": false,
-        "fk": "USAGE_RECORD",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "rate_rule_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RATE_RULE",
         "nullable": false,
         "unique": false
       }
@@ -1982,370 +1516,6 @@
         "type": "int",
         "pk": false,
         "fk": "INVOICE",
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "PAYMENT": [
-      {
-        "name": "payment_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "billing_account_id",
-        "type": "int",
-        "pk": false,
-        "fk": "BILLING_ACCOUNT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "amount",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "payment_type",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "paid_at",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "status",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "external_reference",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": true
-      }
-    ],
-    "PAYMENT_APPLICATION": [
-      {
-        "name": "application_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "payment_id",
-        "type": "int",
-        "pk": false,
-        "fk": "PAYMENT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "invoice_id",
-        "type": "int",
-        "pk": false,
-        "fk": "INVOICE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "commitment_id",
-        "type": "int",
-        "pk": false,
-        "fk": "COMMITMENT",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "applied_amount",
-        "type": "decimal",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "CREDENTIAL": [
-      {
-        "name": "credential_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "user_id",
-        "type": "int",
-        "pk": false,
-        "fk": "USER_ACCOUNT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "credential_type",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "credential_reference",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": true
-      },
-      {
-        "name": "expires_at",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "revoked_at",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      }
-    ],
-    "ACCESS_GRANT": [
-      {
-        "name": "grant_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "user_id",
-        "type": "int",
-        "pk": false,
-        "fk": "USER_ACCOUNT",
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "client_id",
-        "type": "int",
-        "pk": false,
-        "fk": "CLIENT",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "project_id",
-        "type": "int",
-        "pk": false,
-        "fk": "PROJECT",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "deployment_id",
-        "type": "int",
-        "pk": false,
-        "fk": "DEPLOYMENT",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "resource_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RESOURCE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "service_id",
-        "type": "int",
-        "pk": false,
-        "fk": "SERVICE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "permission",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_from",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "valid_to",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "granted_by_staff_id",
-        "type": "int",
-        "pk": false,
-        "fk": "STAFF",
-        "nullable": true,
-        "unique": false
-      }
-    ],
-    "AUDIT_EVENT": [
-      {
-        "name": "audit_event_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "actor_user_id",
-        "type": "int",
-        "pk": false,
-        "fk": "USER_ACCOUNT",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "reservation_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RESERVATION",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "deployment_id",
-        "type": "int",
-        "pk": false,
-        "fk": "DEPLOYMENT",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "resource_id",
-        "type": "int",
-        "pk": false,
-        "fk": "RESOURCE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "service_id",
-        "type": "int",
-        "pk": false,
-        "fk": "SERVICE",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "occurred_at",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "action",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "result",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "details_note",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      }
-    ],
-    "AUTHENTICATION_EVENT": [
-      {
-        "name": "authentication_event_id",
-        "type": "int",
-        "pk": true,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "credential_id",
-        "type": "int",
-        "pk": false,
-        "fk": "CREDENTIAL",
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "attempted_identifier",
-        "type": "text",
-        "pk": false,
-        "fk": null,
-        "nullable": true,
-        "unique": false
-      },
-      {
-        "name": "occurred_at",
-        "type": "timestamp",
-        "pk": false,
-        "fk": null,
-        "nullable": false,
-        "unique": false
-      },
-      {
-        "name": "result",
-        "type": "text",
-        "pk": false,
-        "fk": null,
         "nullable": false,
         "unique": false
       }

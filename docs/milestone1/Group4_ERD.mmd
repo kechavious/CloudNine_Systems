@@ -1,106 +1,63 @@
 erDiagram
     direction LR
+    CLIENT o|--o{ CLIENT : parent_client_id
     CLIENT ||--o{ CLIENT_MEMBERSHIP : client_id
     USER_ACCOUNT ||--o{ CLIENT_MEMBERSHIP : user_id
-    CLIENT ||--o{ CLIENT_RELATIONSHIP : parent_client_id
-    CLIENT ||--o{ CLIENT_RELATIONSHIP : child_client_id
-    USER_ACCOUNT ||--o| STAFF : user_id
     CLIENT ||--o{ PROJECT : client_id
     REGION ||--o{ AVAILABILITY_ZONE : region_id
     AVAILABILITY_ZONE ||--o{ DATA_CENTER : zone_id
     RESOURCE_TYPE ||--o{ RESOURCE : resource_type_id
     DATA_CENTER ||--o{ RESOURCE : data_center_id
     RESOURCE ||--o{ RESOURCE_CONFIGURATION : resource_id
-    RESOURCE_CONFIGURATION ||--o{ CONFIGURATION_CAPACITY : configuration_id
-    METRIC ||--o{ CONFIGURATION_CAPACITY : metric_id
     RESOURCE ||--o{ RESOURCE_STATE : resource_id
-    STAFF o|--o{ RESOURCE_STATE : recorded_by_staff_id
+    USER_ACCOUNT o|--o{ RESOURCE_STATE : recorded_by_user_id
     RESOURCE ||--o{ RESOURCE_RELATIONSHIP : source_resource_id
     RESOURCE ||--o{ RESOURCE_RELATIONSHIP : target_resource_id
-    CLIENT ||--o{ CONTRACT : client_id
     CLIENT ||--o{ RESERVATION : client_id
-    RESERVATION ||--o| RESERVATION_CONTRACT : reservation_id
-    CONTRACT ||--o{ RESERVATION_CONTRACT : contract_id
     RESERVATION ||--o{ RESERVATION_REVISION : reservation_id
     USER_ACCOUNT ||--o{ RESERVATION_REVISION : changed_by_user_id
-    STAFF o|--o{ RESERVATION_REVISION : approved_by_staff_id
+    USER_ACCOUNT o|--o{ RESERVATION_REVISION : approved_by_user_id
     RESERVATION_REVISION ||--o{ RESERVATION_ITEM : revision_id
     RESOURCE_TYPE ||--o{ RESERVATION_ITEM : resource_type_id
     REGION o|--o{ RESERVATION_ITEM : preferred_region_id
     AVAILABILITY_ZONE o|--o{ RESERVATION_ITEM : preferred_zone_id
     DATA_CENTER o|--o{ RESERVATION_ITEM : preferred_data_center_id
-    RESERVATION_ITEM ||--o{ REQUIREMENT_CAPACITY : reservation_item_id
-    METRIC ||--o{ REQUIREMENT_CAPACITY : metric_id
     RESERVATION_ITEM ||--o{ RESERVATION_SERVICE : reservation_item_id
     SERVICE ||--o{ RESERVATION_SERVICE : service_id
-    RESERVATION ||--o{ COMMITMENT : reservation_id
-    BILLING_ACCOUNT ||--o{ COMMITMENT : billing_account_id
     RESERVATION ||--o{ DEPLOYMENT : reservation_id
     PROJECT o|--o{ DEPLOYMENT : project_id
     DEPLOYMENT ||--o{ DEPLOYMENT_EVENT : deployment_id
     USER_ACCOUNT o|--o{ DEPLOYMENT_EVENT : actor_user_id
-    DEPLOYMENT ||--o{ WORKLOAD : deployment_id
     DEPLOYMENT ||--o{ RESOURCE_ALLOCATION : deployment_id
     RESERVATION_ITEM ||--o{ RESOURCE_ALLOCATION : reservation_item_id
     RESOURCE_CONFIGURATION ||--o{ RESOURCE_ALLOCATION : configuration_id
     RESOURCE_ALLOCATION o|--o{ RESOURCE_ALLOCATION : supersedes_allocation_id
-    STAFF o|--o{ RESOURCE_ALLOCATION : assigned_by_staff_id
-    RESOURCE_ALLOCATION ||--o{ ALLOCATION_CAPACITY : allocation_id
-    METRIC ||--o{ ALLOCATION_CAPACITY : metric_id
-    RESOURCE ||--o{ RESOURCE_SERVICE : resource_id
-    SERVICE ||--o{ RESOURCE_SERVICE : service_id
+    USER_ACCOUNT o|--o{ RESOURCE_ALLOCATION : assigned_by_user_id
     DEPLOYMENT ||--o{ DEPLOYMENT_SERVICE : deployment_id
     SERVICE ||--o{ DEPLOYMENT_SERVICE : service_id
+    SERVICE ||--o{ SERVICE_RATE : service_id
+    DEPLOYMENT_SERVICE ||--o{ USAGE_RECORD : deployment_service_id
     RESOURCE_ALLOCATION o|--o{ USAGE_RECORD : allocation_id
-    DEPLOYMENT_SERVICE o|--o{ USAGE_RECORD : deployment_service_id
-    METRIC ||--o{ USAGE_RECORD : metric_id
-    USAGE_RECORD o|--o{ USAGE_RECORD : supersedes_usage_id
-    RATE_PLAN ||--o{ RATE_RULE : rate_plan_id
-    RESOURCE_TYPE o|--o{ RATE_RULE : resource_type_id
-    SERVICE o|--o{ RATE_RULE : service_id
-    REGION o|--o{ RATE_RULE : region_id
-    METRIC ||--o{ RATE_RULE : metric_id
-    CONTRACT ||--o{ CONTRACT_RATE_PLAN : contract_id
-    RATE_PLAN ||--o{ CONTRACT_RATE_PLAN : rate_plan_id
+    USAGE_RECORD o|--o| USAGE_RECORD : supersedes_usage_id
     CLIENT ||--o{ BILLING_ACCOUNT : responsible_client_id
     USER_ACCOUNT o|--o{ BILLING_ACCOUNT : billing_contact_user_id
-    CLIENT o|--o{ BILLING_RULE : client_id
-    PROJECT o|--o{ BILLING_RULE : project_id
-    DEPLOYMENT o|--o{ BILLING_RULE : deployment_id
+    DEPLOYMENT ||--o{ BILLING_RULE : deployment_id
     BILLING_RULE ||--o{ BILLING_RULE_SHARE : billing_rule_id
     BILLING_ACCOUNT ||--o{ BILLING_RULE_SHARE : billing_account_id
-    DEPLOYMENT ||--o{ CHARGE : deployment_id
+    USAGE_RECORD o|--o| CHARGE : usage_id
+    DEPLOYMENT_SERVICE o|--o{ CHARGE : deployment_service_id
+    SERVICE_RATE o|--o{ CHARGE : service_rate_id
     CHARGE o|--o{ CHARGE : adjustment_of_charge_id
-    STAFF o|--o{ CHARGE : authorized_by_staff_id
-    CHARGE ||--o| CHARGE_USAGE : charge_id
-    USAGE_RECORD ||--o{ CHARGE_USAGE : usage_id
-    RATE_RULE ||--o{ CHARGE_USAGE : rate_rule_id
+    USER_ACCOUNT o|--o{ CHARGE : authorized_by_user_id
     CHARGE ||--o{ CHARGE_SHARE : charge_id
     BILLING_ACCOUNT ||--o{ CHARGE_SHARE : billing_account_id
     BILLING_RULE o|--o{ CHARGE_SHARE : billing_rule_id
     BILLING_ACCOUNT ||--o{ INVOICE : billing_account_id
     CHARGE_SHARE ||--o| INVOICE_LINE : charge_share_id
     INVOICE ||--o{ INVOICE_LINE : invoice_id
-    BILLING_ACCOUNT ||--o{ PAYMENT : billing_account_id
-    PAYMENT ||--o{ PAYMENT_APPLICATION : payment_id
-    INVOICE o|--o{ PAYMENT_APPLICATION : invoice_id
-    COMMITMENT o|--o{ PAYMENT_APPLICATION : commitment_id
-    USER_ACCOUNT ||--o{ CREDENTIAL : user_id
-    USER_ACCOUNT ||--o{ ACCESS_GRANT : user_id
-    CLIENT o|--o{ ACCESS_GRANT : client_id
-    PROJECT o|--o{ ACCESS_GRANT : project_id
-    DEPLOYMENT o|--o{ ACCESS_GRANT : deployment_id
-    RESOURCE o|--o{ ACCESS_GRANT : resource_id
-    SERVICE o|--o{ ACCESS_GRANT : service_id
-    STAFF o|--o{ ACCESS_GRANT : granted_by_staff_id
-    USER_ACCOUNT o|--o{ AUDIT_EVENT : actor_user_id
-    RESERVATION o|--o{ AUDIT_EVENT : reservation_id
-    DEPLOYMENT o|--o{ AUDIT_EVENT : deployment_id
-    RESOURCE o|--o{ AUDIT_EVENT : resource_id
-    SERVICE o|--o{ AUDIT_EVENT : service_id
-    CREDENTIAL o|--o{ AUTHENTICATION_EVENT : credential_id
     CLIENT {
         int client_id PK
+        int parent_client_id FK "nullable"
         text name
         text client_type
         text contact_email
@@ -110,6 +67,8 @@ erDiagram
         int user_id PK
         text name
         text email UK
+        text account_kind
+        text staff_role "nullable"
         text status
     }
     CLIENT_MEMBERSHIP {
@@ -119,19 +78,6 @@ erDiagram
         text role
         timestamp valid_from
         timestamp valid_to "nullable"
-    }
-    CLIENT_RELATIONSHIP {
-        int relationship_id PK
-        int parent_client_id FK
-        int child_client_id FK
-        text relationship_type
-        timestamp valid_from
-        timestamp valid_to "nullable"
-    }
-    STAFF {
-        int staff_id PK
-        int user_id FK, UK
-        text staff_role
     }
     PROJECT {
         int project_id PK
@@ -172,18 +118,12 @@ erDiagram
         int configuration_id PK
         int resource_id FK
         text performance_tier
+        int vcpu_count
+        decimal memory_gib
+        decimal storage_gib
+        decimal network_gbps
         timestamp valid_from
         timestamp valid_to "nullable"
-    }
-    METRIC {
-        int metric_id PK
-        text name UK
-        text unit
-    }
-    CONFIGURATION_CAPACITY {
-        int configuration_id PK, FK
-        int metric_id PK, FK
-        decimal capacity
     }
     RESOURCE_STATE {
         int state_id PK
@@ -192,7 +132,7 @@ erDiagram
         text reason
         timestamp starts_at
         timestamp ends_at "nullable"
-        int recorded_by_staff_id FK "nullable"
+        int recorded_by_user_id FK "nullable"
     }
     RESOURCE_RELATIONSHIP {
         int relationship_id PK
@@ -202,23 +142,12 @@ erDiagram
         timestamp valid_from
         timestamp valid_to "nullable"
     }
-    CONTRACT {
-        int contract_id PK
-        int client_id FK
-        timestamp starts_at
-        timestamp ends_at "nullable"
-        text sla_note
-        text priority_note
-    }
     RESERVATION {
         int reservation_id PK
         int client_id FK
         timestamp created_at
         text status
-    }
-    RESERVATION_CONTRACT {
-        int reservation_id PK, FK
-        int contract_id FK
+        text agreement_note "nullable"
     }
     RESERVATION_REVISION {
         int revision_id PK
@@ -229,42 +158,33 @@ erDiagram
         text change_reason
         timestamp created_at
         int changed_by_user_id FK
-        int approved_by_staff_id FK "nullable"
+        int approved_by_user_id FK "nullable"
     }
     RESERVATION_ITEM {
         int reservation_item_id PK
         int revision_id FK
         int resource_type_id FK
         int quantity
+        int min_vcpu
+        decimal min_memory_gib
+        decimal min_storage_gib
+        decimal min_network_gbps
         int preferred_region_id FK "nullable"
         int preferred_zone_id FK "nullable"
         int preferred_data_center_id FK "nullable"
         text location_mode
-    }
-    REQUIREMENT_CAPACITY {
-        int reservation_item_id PK, FK
-        int metric_id PK, FK
-        decimal minimum_capacity
     }
     RESERVATION_SERVICE {
         int reservation_item_id PK, FK
         int service_id PK, FK
         decimal quantity
     }
-    COMMITMENT {
-        int commitment_id PK
-        int reservation_id FK
-        int billing_account_id FK
-        text commitment_type
-        decimal required_amount
-        text status
-        text terms_note
-    }
     DEPLOYMENT {
         int deployment_id PK
         int reservation_id FK
         int project_id FK "nullable"
         text name
+        text workload_note
         timestamp started_at "nullable"
         timestamp ended_at "nullable"
         text confidentiality_level
@@ -279,39 +199,18 @@ erDiagram
         text reason
         int actor_user_id FK "nullable"
     }
-    WORKLOAD {
-        int workload_id PK
-        int deployment_id FK
-        text name
-        text workload_type
-    }
     RESOURCE_ALLOCATION {
         int allocation_id PK
         int deployment_id FK
         int reservation_item_id FK
         int configuration_id FK
+        decimal capacity_fraction
         timestamp starts_at
         timestamp ends_at "nullable"
         text allocation_status
         int supersedes_allocation_id FK "nullable"
         text change_reason
-        int assigned_by_staff_id FK "nullable"
-    }
-    ALLOCATION_CAPACITY {
-        int allocation_id PK, FK
-        int metric_id PK, FK
-        decimal allocated_capacity
-    }
-    SERVICE {
-        int service_id PK
-        text name UK
-        text service_type
-    }
-    RESOURCE_SERVICE {
-        int resource_id PK, FK
-        int service_id PK, FK
-        timestamp valid_from PK
-        timestamp valid_to "nullable"
+        int assigned_by_user_id FK "nullable"
     }
     DEPLOYMENT_SERVICE {
         int deployment_service_id PK
@@ -320,47 +219,29 @@ erDiagram
         timestamp starts_at
         timestamp ends_at "nullable"
     }
+    SERVICE {
+        int service_id PK
+        text name UK
+        text service_type
+        text billing_unit
+    }
+    SERVICE_RATE {
+        int service_rate_id PK
+        int service_id FK
+        timestamp valid_from
+        timestamp valid_to "nullable"
+        decimal unit_price
+    }
     USAGE_RECORD {
         int usage_id PK
+        int deployment_service_id FK
         int allocation_id FK "nullable"
-        int deployment_service_id FK "nullable"
-        int metric_id FK
         decimal quantity
         timestamp period_start
         timestamp period_end
         text record_type
         timestamp recorded_at
-        int supersedes_usage_id FK "nullable"
-    }
-    RATE_PLAN {
-        int rate_plan_id PK
-        text name UK
-    }
-    RATE_RULE {
-        int rate_rule_id PK
-        int rate_plan_id FK
-        int resource_type_id FK "nullable"
-        int service_id FK "nullable"
-        int region_id FK "nullable"
-        int metric_id FK
-        text performance_tier "nullable"
-        timestamp valid_from
-        timestamp valid_to "nullable"
-        int hour_start "nullable"
-        int hour_end "nullable"
-        decimal duration_min_hours "nullable"
-        decimal duration_max_hours "nullable"
-        decimal quantity_min "nullable"
-        decimal quantity_max "nullable"
-        decimal unit_price
-        decimal discount_fraction
-        int precedence
-    }
-    CONTRACT_RATE_PLAN {
-        int contract_id PK, FK
-        timestamp valid_from PK
-        int rate_plan_id FK
-        timestamp valid_to "nullable"
+        int supersedes_usage_id FK, UK "nullable"
     }
     BILLING_ACCOUNT {
         int billing_account_id PK
@@ -370,9 +251,7 @@ erDiagram
     }
     BILLING_RULE {
         int billing_rule_id PK
-        int client_id FK "nullable"
-        int project_id FK "nullable"
-        int deployment_id FK "nullable"
+        int deployment_id FK
         timestamp valid_from
         timestamp valid_to "nullable"
         text rule_note
@@ -384,19 +263,16 @@ erDiagram
     }
     CHARGE {
         int charge_id PK
-        int deployment_id FK
+        int usage_id FK, UK "nullable"
+        int deployment_service_id FK "nullable"
+        int service_rate_id FK "nullable"
         int adjustment_of_charge_id FK "nullable"
-        int authorized_by_staff_id FK "nullable"
+        int authorized_by_user_id FK "nullable"
         text charge_type
         decimal amount
         text status
         text reason
         timestamp created_at
-    }
-    CHARGE_USAGE {
-        int charge_id PK, FK
-        int usage_id FK
-        int rate_rule_id FK
     }
     CHARGE_SHARE {
         int charge_share_id PK
@@ -415,60 +291,4 @@ erDiagram
     INVOICE_LINE {
         int charge_share_id PK, FK
         int invoice_id FK
-    }
-    PAYMENT {
-        int payment_id PK
-        int billing_account_id FK
-        decimal amount
-        text payment_type
-        timestamp paid_at
-        text status
-        text external_reference UK
-    }
-    PAYMENT_APPLICATION {
-        int application_id PK
-        int payment_id FK
-        int invoice_id FK "nullable"
-        int commitment_id FK "nullable"
-        decimal applied_amount
-    }
-    CREDENTIAL {
-        int credential_id PK
-        int user_id FK
-        text credential_type
-        text credential_reference UK
-        timestamp expires_at "nullable"
-        timestamp revoked_at "nullable"
-    }
-    ACCESS_GRANT {
-        int grant_id PK
-        int user_id FK
-        int client_id FK "nullable"
-        int project_id FK "nullable"
-        int deployment_id FK "nullable"
-        int resource_id FK "nullable"
-        int service_id FK "nullable"
-        text permission
-        timestamp valid_from
-        timestamp valid_to "nullable"
-        int granted_by_staff_id FK "nullable"
-    }
-    AUDIT_EVENT {
-        int audit_event_id PK
-        int actor_user_id FK "nullable"
-        int reservation_id FK "nullable"
-        int deployment_id FK "nullable"
-        int resource_id FK "nullable"
-        int service_id FK "nullable"
-        timestamp occurred_at
-        text action
-        text result
-        text details_note
-    }
-    AUTHENTICATION_EVENT {
-        int authentication_event_id PK
-        int credential_id FK "nullable"
-        text attempted_identifier "nullable"
-        timestamp occurred_at
-        text result
     }
