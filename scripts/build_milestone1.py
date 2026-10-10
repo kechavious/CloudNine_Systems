@@ -149,7 +149,7 @@ def pdf_text(md,path):
   line=html.escape(line)
   line=re.sub(r'\*\*(.*?)\*\*',r'<b>\1</b>',line)
   story.append(Paragraph(line,styles[style]))
- SimpleDocTemplate(str(path),pagesize=letter,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
+ SimpleDocTemplate(str(path),pagesize=letter,allowSplitting=0,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
 # ERD: cover + detailed vector module pages. Page dimensions preserve legibility.
 c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),pagesize=letter)
 c.setTitle('Group 4 - CloudNine Systems - 3NF ERD')

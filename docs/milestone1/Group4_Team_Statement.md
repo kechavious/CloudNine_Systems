@@ -1,11 +1,11 @@
 # Group 4 - Team Statement
 ## Milestone 1: Shared understanding and work plan
-Status: proposed agreement for member review. Roster, assignments and adoption have not yet been confirmed. This document records the intended process; it does not claim that meetings, reviews or equal contributions have already occurred.
+Status: proposed agreement for member review. The team has four members. Names, GitHub usernames, individual assignments and adoption remain pending. This document records the intended process; it does not claim that meetings, reviews or equal contributions have already occurred.
 ## Shared understanding
 We propose to build a database-backed information system for CloudNine Systems. Its purpose is to connect client requests, infrastructure availability, deployment changes, measured usage and financial responsibility. We distinguish requested capacity from actual assignment, resource users from payers, and estimates from finalized charges. We will prioritize a coherent 3NF schema and explain assumptions and limitations.
 For Milestone 1, our shared repository will contain the ERD PDF, draft analysis report and this team statement. Each member will review the full design and be able to explain a reservation-to-invoice example, rather than understanding only an assigned section.
 ## Roster and equitable division
-The following four slots are provisional work packages, not a confirmed member count. Replace them with actual names and redistribute if the group has a different size.
+Our team has four members. The following four work packages are proposed for Member A-D until names and GitHub usernames are provided. Final ownership will be agreed after reviewing each member's skills and availability.
 Member A: [name pending]. Lead clients, user accounts, memberships and projects; draft the corresponding report sections. Review Member C's reservation and deployment work.
 Member B: [name pending]. Lead geography, resources, configurations, capacities, dependencies and availability. Review Member D's billing and normalization work.
 Member C: [name pending]. Lead reservations, revisions, deployments, allocations and metering. Review Member A's client and people work.
@@ -24,7 +24,8 @@ Gate 1 - Scope: all members confirm the scenario, assumptions and requirements c
 Gate 2 - Design: each module receives a peer review; the group checks cross-module foreign keys, cardinalities, candidate keys and 3NF dependencies.
 Gate 3 - Submission: verify that the three deliverables exist, diagrams are readable, document links work and the instructor can access the repository. Confirm all members have access before describing it as a shared repository.
 ## Adoption record - complete before submission
-Confirmed member names and GitHub usernames: [pending].
+Confirmed team size: four members.
+Member names and GitHub usernames: [pending].
 Final work package owners and reviewers: [pending].
 Communication channel and check-in schedule: [pending].
 Course deadline and internal review date: [pending].

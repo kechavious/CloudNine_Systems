@@ -23,18 +23,18 @@ The ERD is a logical design. Database implementation, data exports, queries and 
 
 ## Before submitting the repository URL
 
-- Replace provisional Member A-D slots with the actual roster, GitHub usernames, owners and reviewers. Four work packages do not establish the actual group size.
+- The team has four members. Replace Member A-D placeholders with confirmed names, GitHub usernames, owners and reviewers.
 - Confirm the team's agreement, communication schedule, course deadline and internal review date.
 - Confirm every member has collaborator access and the instructor can open the repository.
 - Review the proposed assumptions and the 30-table scope together. The team statement is a proposed plan until members confirm it.
 
 These confirmations require the team's input; they have not been represented as completed.
 
-## Source and prior design
+## Assignment sources
 
 The scenario comes from [CloudNine Systems](Group%20Project_%20CloudNine%20Systems.pdf); general project requirements come from [the course project handout](Group%20Project%20-%20DB.pdf).
 
-Earlier files `docs/CloudNine_Complete_ERD.md`, `docs/CloudNine_Complete_ERD.mmd`, and `docs/CloudNine_ERD_Modules.md` are preserved as the original 42-table proposal. The previous 50-table Milestone 1 version remains available in Git history. They are superseded by the Milestone 1 package above and should not be used as its schema source.
+The repository contains the current 30-table Milestone 1 design. Superseded designs have been removed from the current file tree and remain recoverable through Git history.
 
 ## Regeneration
 
