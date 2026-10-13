@@ -1,25 +1,27 @@
 # Group 4 - Team Statement
-## Milestone 1: Understanding and work plan
-Status: proposed plan for four members. Names, assignments and member acceptance must be confirmed before submission.
+## Milestone 1: Shared understanding and work plan
+Team size: four. Work packages are assigned to Member A-D below; English names will be added later. This milestone covers design documents only; work completion and member acknowledgment remain pending.
 ## Shared understanding
-We are designing a database for CloudNine Systems that connects reservations, resource allocation, deployment changes, usage and billing. Our 23-table design separates requested capacity from actual assignments, resource users from payers, and estimates from final charges. Each member will review the complete model and explain a reservation-to-invoice example.
-## Proposed division of work
-Member A - [name pending]: clients, user accounts, memberships and projects; corresponding analysis sections. Peer reviewer: Member C.
-Member B - [name pending]: geography, resources, capacities and availability. Peer reviewer: Member D.
-Member C - [name pending]: reservations, request items, deployments, allocations and usage tracking. Peer reviewer: Member A.
-Member D - [name pending]: service pricing, charges, cost sharing and invoices. Peer reviewer: Member B. Split pricing and invoicing tasks if this package requires more effort than the others.
-All members review cross-module relationships and 3NF reasoning, contribute to the report, and check the final PDFs. Integration and repository administration rotate; their effort counts toward each member's workload. Package sizes are starting proposals, not proof of equal effort.
-## Accountability and peer review
-Track each task in a GitHub Issue with an owner, reviewer, expected result, estimated effort and due date. Use To do, In progress, Review and Done statuses. A task is complete after its artifact is linked and its reviewer has checked it.
-Use branches and pull requests. Another member checks keys, relationships, assumptions and consistency before integration. Keep a brief contribution log including design, writing, implementation, review, debugging and coordination; commit counts alone do not measure contribution.
-## Support and balanced workload
-Propose two short check-ins each week at times agreed by the group. Discuss progress, next steps, blockers and remaining effort. Report risks promptly and record decisions and reassigned work in the repository.
-Compare task difficulty and estimated remaining hours at each check-in. Split or transfer tasks when one member carries substantially more work or is blocked for a day. Pair with a blocked teammate, update ownership when needed, and adjust the plan for availability changes. Documentation and last-minute integration are shared work.
-Aim to complete an internal review at least 48 hours before the course deadline where possible. Each member checks one other module and the group checks cross-module links, PDF readability and repository access.
-## Confirmation before submission
-Formal group name: Group 4. Team size: four members.
-Member names and GitHub usernames: [pending].
-Confirmed work package owners and reviewers: [pending].
-Communication channel and check-in times: [pending].
-Course deadline and internal review date: [pending].
-Each member confirms the scope, assignments and cooperation plan through a pull request review or individual acknowledgment. Confirm that all four members share repository access and that the instructor can open the submitted URL. This document becomes the adopted team plan after those confirmations.
+CloudNine Systems manages cloud resource requests, assignments, deployment activity, measured usage and billing. Our 23-table model separates requested resources from actual assignments, users from payers, and estimated consumption from final charges. We will submit an ERD PDF, a draft analysis report and this team statement through one shared GitHub repository. Every member must understand and explain a reservation-to-invoice example.
+## Division of work: four connected packages
+Member A - [English name pending]. Own the six client and reservation tables: CLIENT, USER_ACCOUNT, CLIENT_MEMBERSHIP, PROJECT, RESERVATION and RESERVATION_ITEM. Check requesting-client ownership, memberships, requested quantities and location constraints. Draft the scenario and organizational-schema sections, then assemble the analysis report from all members' contributions. Peer-review Member D's metering and billing package.
+Member B - [English name pending]. Own the six infrastructure tables: REGION, AVAILABILITY_ZONE, DATA_CENTER, RESOURCE_TYPE, RESOURCE and RESOURCE_STATE. Check geographic relationships, atomic capacity fields, resource identity and availability intervals. Draft the resource assumptions and limitations. Coordinate the logical ERD source and cross-module foreign-key integration. Peer-review Member A's client and reservation package.
+Member C - [English name pending]. Own five deployment and service tables: DEPLOYMENT, RESOURCE_ALLOCATION, DEPLOYMENT_SERVICE, SERVICE and SERVICE_RATE. Check allocation ownership, resource matching, capacity fractions, replacement intervals and service-rate validity. Draft the allocation and pricing assumptions and the core workflow explanation. Coordinate PDF generation, readability and document consistency checks. Peer-review Member B's infrastructure package.
+Member D - [English name pending]. Own six metering and billing tables: USAGE_RECORD, BILLING_ACCOUNT, CHARGE, CHARGE_SHARE, INVOICE and INVOICE_LINE. Check estimated versus actual use, charge contexts, staff-authorized adjustments, sharing totals and invoice ownership. Draft the billing assumptions and normalization examples. Maintain this team statement and the submission checklist, including repository links and access checks. Peer-review Member C's deployment and service package.
+Each member contributes the functional-dependency and 3NF reasoning for their own tables. Member A assembles that reasoning into the report; assembly does not mean writing everyone else's sections. Member B coordinates the ERD, but each owner supplies and corrects their own module. Member C regenerates PDFs, but all four members inspect them. Member D checks access, but each member confirms their own access.
+## Equitable workload and mutual support
+The initial packages contain six, six, five and six tables. Table counts alone do not measure effort: allocation logic, billing constraints, writing, review and integration all count. Begin with an estimated four to six hours per member for Milestone 1, including about one hour of peer review. These are planning estimates, not recorded contributions or a course requirement.
+At each check-in, compare remaining estimated hours and task difficulty. If one member's remaining load exceeds another's by more than two hours, split a concrete task and update its owner and reviewer. Transfer a report subsection, diagram check or PDF verification task; revisit estimates as work progresses.
+Report blockers within one day. The assigned reviewer pairs with the blocked member to diagnose the issue; another member can take a smaller subtask if needed. Availability changes trigger an explicit revised plan. Integration and coordination rotate for later milestones so one person does not become the permanent editor or last-minute rescuer.
+## Accountability and communication
+Create one GitHub Issue per concrete task with an owner, reviewer, expected artifact, estimated effort and due date. Use To do, In progress, Review and Done. A task is Done only when its artifact is linked, review feedback is addressed and the reviewer confirms it meets the agreed criteria.
+Use a branch and pull request for changes. The author explains affected tables and assumptions. The reviewer checks keys, cardinalities, normalization and consistency with the report. Keep a brief contribution log covering modeling, writing, review, debugging and coordination; commit counts alone do not measure fair contribution.
+Hold two short check-ins each week, with exact times and the communication channel chosen by the members. Each person reports completed work, next steps, blockers and remaining effort. Record design decisions and reassigned tasks in the repository. This schedule is planned, not a claim that meetings have already happened.
+## Milestone 1 review and submission
+First, each owner completes their module and analysis contribution. Second, the reciprocal reviews above check all four packages, and the team checks cross-module ownership and the full reservation-to-invoice example. Third, Member A assembles the report, Member B integrates the ERD, Member C regenerates and checks PDFs, and Member D checks the submission links and checklist.
+Aim for the combined review at least 48 hours before the course deadline where scheduling permits. All members inspect the three final PDFs and confirm repository access. Verify that the instructor can open the repository, then submit its URL. Database implementation, data exports, analytical queries and web pages are later work.
+## Pending member details and acknowledgment
+Group name: Group 4. English names and GitHub usernames: [to be supplied].
+Work package mapping: A = clients and reservations; B = infrastructure; C = deployments and services; D = metering and billing. The team will map the four actual members to these labels when names are supplied.
+Communication channel, check-in times, course deadline and internal review date: [to be confirmed].
+Each member records acknowledgment of this plan and their assigned package through a pull request review or an individual repository acknowledgment. Member acceptance and shared-access checks remain pending.

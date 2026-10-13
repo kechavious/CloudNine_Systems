@@ -27,7 +27,7 @@ The model keeps requests, resource allocations, usage, direct cost sharing and i
 
 ## Before submission
 
-Replace member placeholders and confirm work owners, reviewers and the team plan. Ensure all four members have repository access and the instructor can open the URL. Review the final PDFs together. Pending confirmations are not represented as completed.
+Add English names and map the four members to the assigned A-D work packages. Owners, review duties and document responsibilities are specified in the Team Statement; obtain member acknowledgment of the plan. Ensure all four members have repository access and the instructor can open the URL. Review the final PDFs together. Pending confirmations are not represented as completed.
 
 ## Editable sources
 
