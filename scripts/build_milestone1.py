@@ -86,28 +86,92 @@ for name,fs in schema.items():
   lines.append(f'        {f["type"]} {f["name"]}'+(' '+flags if flags else '')+(' "nullable"' if f['nullable'] else ''))
  lines.append('    }')
 (DOC/'Group4_ERD.mmd').write_text('\n'.join(lines)+'\n')
-# Render module diagrams with real entity fields, FK relationships, and multiplicities.
-for i,(module,names) in enumerate(modules.items(),1):
- external=sorted({f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names})
- dot=['digraph G {','graph [rankdir=LR, bgcolor="white", nodesep=0.4, ranksep=1.0, splines=polyline, pad=0.2];','node [shape=plain, fontname="Helvetica"];','edge [fontname="Helvetica", fontsize=8, color="#64748b", arrowsize=0.7];']
+# Views follow the same A-D ownership as the Team Statement.
+views={
+ 'A': ('Clients and reservations', ['CLIENT','USER_ACCOUNT','CLIENT_MEMBERSHIP','PROJECT','RESERVATION','RESERVATION_ITEM']),
+ 'B': ('Infrastructure and availability', ['REGION','AVAILABILITY_ZONE','DATA_CENTER','RESOURCE_TYPE','RESOURCE','RESOURCE_STATE']),
+ 'C': ('Deployments and services', ['DEPLOYMENT','RESOURCE_ALLOCATION','DEPLOYMENT_SERVICE','SERVICE','SERVICE_RATE']),
+ 'D': ('Metering and billing', ['USAGE_RECORD','BILLING_ACCOUNT','CHARGE','CHARGE_SHARE','INVOICE','INVOICE_LINE']),
+}
+owner={name:member for member,(_,names) in views.items() for name in names}
+assert set(owner)==set(schema) and sum(len(v[1]) for v in views.values())==N
+palette={'A':'#245f9c','B':'#267361','C':'#855a9e','D':'#ad6625'}
+unique_groups={
+ 'AVAILABILITY_ZONE':'UNIQUE(region_id, name)',
+ 'DATA_CENTER':'UNIQUE(zone_id, name)',
+ 'RESOURCE':'UNIQUE(data_center_id, local_identifier)',
+ 'SERVICE_RATE':'UNIQUE(service_id, valid_from)',
+ 'CHARGE_SHARE':'UNIQUE(charge_id, billing_account_id)',
+}
+def endpoints(name,f):
+ return ('0..1' if f['nullable'] else '1', '0..1' if f['unique'] or (f['pk'] and sum(x['pk'] for x in schema[name])==1) else '0..*')
+def graph(names,overview=False):
+ external=[] if overview else sorted({f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names})
+ dot=['digraph G {','graph [rankdir=LR, bgcolor="white", nodesep=0.55, ranksep=0.9, splines=spline, pad=0.25, outputorder=edgesfirst];','node [shape=plain, fontname="Helvetica"];','edge [fontname="Helvetica", fontsize=9, color="#61738b", arrowsize=0.6, labeldistance=2.2];']
  for name in names+external:
-  ext=name in external; fs=[f for f in schema[name] if f['pk']] if ext else schema[name]
-  title=name+(' (reference)' if ext else '')
-  rows=[f'<TR><TD COLSPAN="2" BGCOLOR="{"#64748b" if ext else "#16324f"}"><FONT COLOR="white"><B>{title}</B></FONT></TD></TR>']
-  for f in fs:
-   key='/'.join(k for k,b in [('PK',f['pk']),('FK',bool(f['fk'])),('UK',f['unique'])] if b)
-   rows.append(f'<TR><TD ALIGN="LEFT">{key}</TD><TD ALIGN="LEFT">{f["name"]}: {f["type"]}{" ?" if f["nullable"] else ""}</TD></TR>')
-  dot.append(f'{name} [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5">'+''.join(rows)+'</TABLE>>];')
+  ext=name in external; fs=[f for f in schema[name] if f['pk']] if ext or overview else schema[name]
+  color='#718096' if ext else palette[owner[name]]
+  label=f'{owner[name]} / {name}'+(' (reference)' if ext else '')
+  rows=[f'<TR><TD COLSPAN="2" BGCOLOR="{color}"><FONT COLOR="white" POINT-SIZE="11"><B>{label}</B></FONT></TD></TR>']
+  for field in fs:
+   key='/'.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk'])),('UK',field['unique'])] if b)
+   rows.append(f'<TR><TD PORT="{field["name"]}" ALIGN="LEFT"><FONT POINT-SIZE="10">{key or "&#160;"}</FONT></TD><TD ALIGN="LEFT"><FONT POINT-SIZE="10">{field["name"]}: {field["type"]}{" ?" if field["nullable"] else ""}</FONT></TD></TR>')
+  if not ext and not overview and name in unique_groups:
+   rows.append(f'<TR><TD COLSPAN="2" ALIGN="LEFT" BGCOLOR="#f1f5f9"><FONT POINT-SIZE="9">{unique_groups[name]}</FONT></TD></TR>')
+  dot.append(f'{name} [label=<<TABLE BORDER="1" COLOR="#c6d0dc" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">'+''.join(rows)+'</TABLE>>];')
  for name in names:
-  for f in schema[name]:
-   if f['fk']:
-    child='0..1' if f['unique'] or (f['pk'] and sum(x['pk'] for x in schema[name])==1) else '0..*'
-    parent='0..1' if f['nullable'] else '1'
-    dot.append(f'{f["fk"]} -> {name} [dir=none, taillabel="{parent}", headlabel="{child}", label="{f["name"]}", style="{"dashed" if f["fk"] in external else "solid"}"];')
+  for field in schema[name]:
+   target=field['fk']
+   if not target: continue
+   # The overview omits audit-actor and recursive links. Every FK, including
+   # these omitted links, is present in its owned-table detail view.
+   if overview and (target==name or target=='USER_ACCOUNT' and name!='CLIENT_MEMBERSHIP'):
+    continue
+   parent,child=endpoints(name,field)
+   targetpk=next(x['name'] for x in schema[target] if x['pk'])
+   destination=name if overview else name+':'+field['name']+':w'
+   source=target
+   attrs=f'dir=none,taillabel="{parent}",headlabel="{child}",style="{"dashed" if target in external else "solid"}"'
+   if overview: attrs+=f',color="{palette[owner[name]]}88"'
+   dot.append(f'{source} -> {destination} [{attrs}];')
  dot.append('}')
- (TMP/f'module{i}.dot').write_text('\n'.join(dot))
-node='''const fs=require('fs'); const {instance}=require('/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@viz-js/viz'); (async()=>{const v=await instance();for(let i=1;i<=Number(process.argv[2]);i++){const p=process.argv[1]+'/module'+i;fs.writeFileSync(p+'.svg',v.renderString(fs.readFileSync(p+'.dot','utf8'),{format:'svg'}));}})();'''
-subprocess.run(['/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node','-e',node,str(TMP),str(len(modules))],check=True)
+ return '\n'.join(dot)
+(TMP/'overview.dot').write_text(graph(list(schema),True))
+for member,(_,names) in views.items():
+ (TMP/f'owner_{member}.dot').write_text(graph(names))
+node="""const fs=require('fs'); const {instance}=require('/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@viz-js/viz'); (async()=>{const v=await instance();for(const file of ['overview','owner_A','owner_B','owner_C','owner_D']){const p=process.argv[1]+'/'+file;fs.writeFileSync(p+'.svg',v.renderString(fs.readFileSync(p+'.dot','utf8'),{format:'svg'}));}})();"""
+subprocess.run(['/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node','-e',node,str(TMP)],check=True)
+# Fail if Graphviz omitted a label or relationship instead of producing a full diagram.
+for member,(_,names) in views.items():
+ external={f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names}
+ svg=(TMP/f'owner_{member}.svg').read_text()
+ assert svg.count('class="node"')==len(names)+len(external),member
+ assert svg.count('class="edge"')==sum(bool(f['fk']) for name in names for f in schema[name]),member
+assert (TMP/'overview.svg').read_text().count('class="node"')==N
+svgout=ROOT/'output/svg';svgout.mkdir(parents=True,exist_ok=True)
+(svgout/'Group4_ERD_Overview.svg').write_text((TMP/'overview.svg').read_text())
+# Editable owner views render directly on GitHub; each repeats only necessary
+# external keys. The .mmd file remains the full schema with all FK relationships.
+parts=['# Group 4 - ERD ownership views','23 tables; one primary owner per table. Names will be mapped to A-D later.', '![All 23 entities, color-coded by owner](../../output/svg/Group4_ERD_Overview.svg)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
+for member,(title,names) in views.items():
+ parts += [f'## Member {member}: {title}',f'{len(names)} owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.','', '```mermaid','erDiagram','    direction LR']
+ external=sorted({x['fk'] for name in names for x in schema[name] if x['fk'] and x['fk'] not in names})
+ for name in names:
+  for field in schema[name]:
+   if field['fk']:
+    left='o|' if field['nullable'] else '||'
+    _,right=endpoints(name,field)
+    right='o|' if right=='0..1' else 'o{'
+    parts.append(f'    {field["fk"]} {left}--{right} {name} : {field["name"]}')
+ for name in names+external:
+  parts.append(f'    {name} {{')
+  for field in schema[name]:
+   if name in external and not field['pk']:continue
+   flags=', '.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk'])),('UK',field['unique'])] if b)
+   parts.append(f'        {field["type"]} {field["name"]}'+(' '+flags if flags else '')+(' "nullable"' if field['nullable'] else ''))
+  parts.append('    }')
+ parts += ['```','']
+(DOC/'Group4_ERD_Views.md').write_text('\n'.join(parts)+'\n')
 styles=getSampleStyleSheet()
 styles.add(ParagraphStyle(name='BodyCustom',fontName='Helvetica',fontSize=10,leading=14,spaceAfter=8,textColor=colors.HexColor('#243247')))
 styles.add(ParagraphStyle(name='TitleCustom',fontName='Helvetica-Bold',fontSize=23,leading=28,spaceAfter=16,textColor=colors.HexColor('#16324f')))
@@ -132,47 +196,60 @@ def pdf_text(md,path):
   else: grouped.append(story[i]);i+=1
  story=grouped
  SimpleDocTemplate(str(path),pagesize=letter,allowSplitting=1,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
-# ERD: cover + detailed vector module pages. Page dimensions preserve legibility.
+# ERD submission: guide, all-table overview, four owned-table views, constraints.
 c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),pagesize=letter)
-c.setTitle('Group 4 - CloudNine Systems - 3NF ERD')
-c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',26);c.drawString(48,710,'CloudNine Systems');c.setFont('Helvetica-Bold',18);c.drawString(48,680,'Group 4 | Milestone 1 ERD')
-intro=[f'{N} tables organized into {len(modules)} connected modules.','Logical relational design in Third Normal Form (3NF).','Each module page shows all owned attributes and incoming FK relationships.','Gray entities are references to tables fully defined on another module page.','Relationship ends: 1 = required parent; 0..1 = optional parent;','0..* = zero or more children; 0..1 child = unique foreign key.','PK = primary key; FK = foreign key; UK = additional unique key.','? means nullable. Composite PKs are marked on every participating column.','Minimum child counts are enforced by lifecycle rules, not by ordinary FKs.','Composite unique keys, XOR, time and accounting rules appear in the report.','All monetary values are USD. All timestamps are UTC.','The editable Mermaid and generation script accompany this PDF.']
-y=640
-for line in intro:
- c.setFont('Helvetica',10);c.drawString(48,y,line);y-=21
-for i,module in enumerate(modules,1):
- c.setFont('Helvetica',11);c.drawString(48,y,f'{i+2}. {module}');y-=22
-c.setFont('Helvetica',8);c.drawString(48,30,'GROUP 4 | DESIGN DRAFT | Team roster and adoption pending');c.showPage()
-# Compact conceptual overview: detailed FK relationships remain on module pages.
-c.setPageSize((792,612))
-c.setFillColor(colors.HexColor('#16324f')); c.setFont('Helvetica-Bold',22)
-c.drawString(36,570,'Core workflow overview')
-c.setFont('Helvetica',11); c.drawString(36,548,'Read this first; detailed entities, keys and cardinalities follow on the module pages.')
-boxes=[(40,420,'CLIENT','Who requests the work?'),(285,420,'RESERVATION','What capacity is requested?'),(530,420,'DEPLOYMENT','What work is running?'),(530,290,'RESOURCE_ALLOCATION','Which resources are assigned?'),(285,290,'USAGE_RECORD','What was consumed?'),(40,290,'CHARGE','What does it cost?'),(40,160,'CHARGE_SHARE','Which account pays each share?'),(285,160,'INVOICE','What is billed to that account?')]
-for x,y,title,subtitle in boxes:
- c.setFillColor(colors.HexColor('#edf3f8')); c.setStrokeColor(colors.HexColor('#16324f')); c.roundRect(x,y,220,72,8,fill=1,stroke=1)
- c.setFillColor(colors.HexColor('#16324f')); c.setFont('Helvetica-Bold',11);c.drawString(x+10,y+45,title)
- c.setFont('Helvetica',9);c.drawString(x+10,y+23,subtitle)
-def arrow(x1,y1,x2,y2):
- c.setStrokeColor(colors.HexColor('#64748b')); c.setLineWidth(1.4);c.line(x1,y1,x2,y2)
- import math
- angle=math.atan2(y2-y1,x2-x1)
- for delta in (-0.45,0.45): c.line(x2,y2,x2-8*math.cos(angle+delta),y2-8*math.sin(angle+delta))
-for coords in [(260,456,285,456),(505,456,530,456),(640,420,640,362),(530,326,505,326),(285,326,260,326),(150,290,150,232),(260,196,285,196)]: arrow(*coords)
-c.setFont('Helvetica',10); c.drawString(40,108,'Conceptual flow only: intermediate service, pricing and invoice-line tables are omitted here.')
-c.drawString(40,89,f'The following {len(modules)} module pages define the {N}-table model and FK multiplicities.')
-c.setFont('Helvetica',9); c.drawString(36,22,'Group 4 | CloudNine Systems | ERD page 2 of 8'); c.showPage()
-for i,module in enumerate(modules,1):
- d=svg2rlg(str(TMP/f'module{i}.svg'))
- w=max(792,d.width+72);h=max(612,d.height+120)
- c.setPageSize((w,h));c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',20);c.drawString(36,h-35,f'{i}. {module}')
- c.setFont('Helvetica',10);c.drawString(36,h-55,'PK / FK / UK | ? nullable | Gray = external reference | Edge labels give multiplicity at each end')
- renderPDF.draw(d,c,(w-d.width)/2,45)
- c.setFont('Helvetica',9);c.drawString(36,22,f'Group 4 | CloudNine Systems | ERD page {i+2} of {len(modules)+2}');c.showPage()
-c.save()
+c.setTitle('Group 4 - CloudNine Systems - 23-table ERD')
+c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',27);c.drawString(48,714,'CloudNine Systems')
+c.setFont('Helvetica-Bold',17);c.drawString(48,684,'Group 4 | Milestone 1 | ERD')
+c.setFont('Helvetica',11);c.drawString(48,650,'23 core tables. Four work packages. One connected logical design.')
+c.setFont('Helvetica-Bold',12);c.drawString(48,612,'Core workflow')
+flow=['Client requests -> reservation and items -> deployment and allocation', 'Provisioned service -> usage -> charge -> payer share -> invoice']
+for i,text in enumerate(flow):c.setFont('Helvetica',10);c.drawString(48,588-i*20,text)
+y=524
+for member,(title,names) in views.items():
+ c.setFillColor(colors.HexColor(palette[member]));c.roundRect(48,y-8,30,27,4,fill=1,stroke=0)
+ c.setFillColor(colors.white);c.setFont('Helvetica-Bold',12);c.drawString(59,y,member)
+ c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',11);c.drawString(90,y+5,f'Member {member}: {title}')
+ c.setFont('Helvetica',10);c.drawString(90,y-12,f'{len(names)} tables | Detailed view: page {list(views).index(member)+3}');y-=66
+notes=['Page 2: all 23 entities, primary keys and principal domain relationships.',
+       'Pages 3-6: every owned attribute and every FK, including actors and self-links.',
+       'Page 7: composite uniqueness and important constraints.',
+       '1 = exactly one; 0..1 = optional one; 0..* = zero or more.',
+       'PK = primary key; FK = foreign key; UK = single-column unique key.',
+       '? = nullable; gray boxes = external references, not duplicate tables.',
+       'All money is USD; all timestamps are UTC.',
+       '3NF reasoning and scope assumptions are in the draft analysis report.']
+for text in notes:c.setFillColor(colors.HexColor('#475569'));c.setFont('Helvetica',9);c.drawString(48,y,text);y-=19
+c.setFont('Helvetica',8);c.drawString(48,28,'Group 4 | Design draft | Names and member acknowledgment pending');c.drawRightString(564,28,'1 / 7');c.showPage()
+def draw_graph(file,title,subtitle,page):
+ d=svg2rlg(str(TMP/f'{file}.svg'))
+ w=max(792,d.width+80);h=max(612,d.height+145)
+ c.setPageSize((w,h));c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',21);c.drawString(40,h-37,title)
+ c.setFont('Helvetica',10);c.drawString(40,h-59,subtitle)
+ renderPDF.draw(d,c,(w-d.width)/2,48)
+ c.setFont('Helvetica',9);c.drawString(40,23,'Group 4 | CloudNine Systems | PK / FK / UK | ? nullable | 1 / 0..1 / 0..* multiplicities')
+ c.drawRightString(w-40,23,f'{page} / 7');c.showPage()
+draw_graph('overview','All-table overview | 23 entities','A = clients / requests; B = resources; C = deployments / services; D = usage / billing. Actor and recursive FKs appear in detail views.',2)
+for i,(member,(title,names)) in enumerate(views.items(),3):
+ draw_graph(f'owner_{member}',f'Member {member} | {title}',f'{len(names)} owned tables. Gray boxes reference other owners. Lines connect parent PKs to child FKs.',i)
+c.setPageSize(letter)
+c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',22);c.drawString(48,714,'Keys and integrity rules')
+constraints=[
+ ('Composite UNIQUE constraints', [name+': '+rule for name,rule in unique_groups.items()]),
+ ('Exclusive choices (XOR)', ['RESERVATION_ITEM: at most one preferred location level.', 'CHARGE: exactly one of usage_id, deployment_service_id,', 'or adjustment_of_charge_id. Metered charges require service_rate_id.']),
+ ('Lifecycle and financial rules', ['Approved reservations contain items; issued invoices contain lines.', 'Resource type, minimum capacity, dates and mandatory locations must match.', 'Concurrent assigned fractions cannot exceed one per resource.', 'Concurrent item assignments cannot exceed the requested instance count.', 'State intervals for the same resource cannot overlap.', 'Final shares total the charge; posted charges and shares retain history.', 'An invoice line must reference a final share for the same payer account.', 'A share appears on at most one invoice (INVOICE_LINE PK/FK).']),
+ ('History and normalization', ['Allocation, availability, rate and usage-correction history are retained.', 'Configuration lineage, reservation revisions and full event logs are deferred.', 'Do not repeat region or zone in RESOURCE, or deployment in USAGE_RECORD.', 'Do not repeat invoice membership or a billing rule in CHARGE_SHARE.', 'Temporal, cross-table and aggregate rules need transactional checks.', 'See analysis sections 3-5 for dependencies, assumptions and limitations.']),
+]
+y=673
+for heading,items in constraints:
+ c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',12);c.drawString(48,y,heading);y-=23
+ for item in items:
+  c.setFillColor(colors.HexColor('#475569'));c.setFont('Helvetica',9);c.drawString(56,y,item);y-=18
+ y-=17
+c.setFont('Helvetica',8);c.drawString(48,28,'Group 4 | Logical design | All 23 tables have a primary key');c.drawRightString(564,28,'7 / 7');c.showPage();c.save()
 report=(DOC/'Group4_Analysis_Draft.md').read_text()
 team=(DOC/'Group4_Team_Statement.md').read_text()
 (DOC/'Group4_Analysis_Draft.md').write_text(report)
 (DOC/'Group4_Team_Statement.md').write_text(team)
 pdf_text(report,OUT/'Group4_Analysis_Draft.pdf');pdf_text(team,OUT/'Group4_Team_Statement.pdf')
-print(f'Created {N}-table schema, {len(modules)} ERD modules, analysis and team statement.')
+print(f'Created {N}-table schema, four owner views, seven-page ERD, analysis and team statement.')

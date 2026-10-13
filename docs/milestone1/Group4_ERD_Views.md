@@ -1,0 +1,313 @@
+# Group 4 - ERD ownership views
+23 tables; one primary owner per table. Names will be mapped to A-D later.
+![All 23 entities, color-coded by owner](../../output/svg/Group4_ERD_Overview.svg)
+[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)
+
+## Member A: Clients and reservations
+6 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+
+```mermaid
+erDiagram
+    direction LR
+    CLIENT o|--o{ CLIENT : parent_client_id
+    CLIENT ||--o{ CLIENT_MEMBERSHIP : client_id
+    USER_ACCOUNT ||--o{ CLIENT_MEMBERSHIP : user_id
+    CLIENT ||--o{ PROJECT : client_id
+    CLIENT ||--o{ RESERVATION : client_id
+    USER_ACCOUNT o|--o{ RESERVATION : approved_by_user_id
+    RESERVATION ||--o{ RESERVATION_ITEM : reservation_id
+    RESOURCE_TYPE ||--o{ RESERVATION_ITEM : resource_type_id
+    REGION o|--o{ RESERVATION_ITEM : preferred_region_id
+    AVAILABILITY_ZONE o|--o{ RESERVATION_ITEM : preferred_zone_id
+    DATA_CENTER o|--o{ RESERVATION_ITEM : preferred_data_center_id
+    CLIENT {
+        int client_id PK
+        int parent_client_id FK "nullable"
+        text name
+        text client_type
+        text contact_email
+        text qualification_note "nullable"
+    }
+    USER_ACCOUNT {
+        int user_id PK
+        text name
+        text email UK
+        text account_kind
+        text staff_role "nullable"
+        text status
+    }
+    CLIENT_MEMBERSHIP {
+        int membership_id PK
+        int client_id FK
+        int user_id FK
+        text role
+        timestamp valid_from
+        timestamp valid_to "nullable"
+    }
+    PROJECT {
+        int project_id PK
+        int client_id FK
+        text name
+    }
+    RESERVATION {
+        int reservation_id PK
+        int client_id FK
+        timestamp created_at
+        timestamp start_time
+        timestamp end_time
+        text status
+        text agreement_note "nullable"
+        int approved_by_user_id FK "nullable"
+    }
+    RESERVATION_ITEM {
+        int reservation_item_id PK
+        int reservation_id FK
+        int resource_type_id FK
+        int quantity
+        int min_vcpu
+        decimal min_memory_gib
+        decimal min_storage_gib
+        decimal min_network_gbps
+        int preferred_region_id FK "nullable"
+        int preferred_zone_id FK "nullable"
+        int preferred_data_center_id FK "nullable"
+        text location_mode
+    }
+    AVAILABILITY_ZONE {
+        int zone_id PK
+    }
+    DATA_CENTER {
+        int data_center_id PK
+    }
+    REGION {
+        int region_id PK
+    }
+    RESOURCE_TYPE {
+        int resource_type_id PK
+    }
+```
+
+## Member B: Infrastructure and availability
+6 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+
+```mermaid
+erDiagram
+    direction LR
+    REGION ||--o{ AVAILABILITY_ZONE : region_id
+    AVAILABILITY_ZONE ||--o{ DATA_CENTER : zone_id
+    RESOURCE_TYPE ||--o{ RESOURCE : resource_type_id
+    DATA_CENTER ||--o{ RESOURCE : data_center_id
+    RESOURCE ||--o{ RESOURCE_STATE : resource_id
+    USER_ACCOUNT o|--o{ RESOURCE_STATE : recorded_by_user_id
+    REGION {
+        int region_id PK
+        text name UK
+        text regulatory_note
+    }
+    AVAILABILITY_ZONE {
+        int zone_id PK
+        int region_id FK
+        text name
+        text redundancy_note
+        text connectivity_note
+    }
+    DATA_CENTER {
+        int data_center_id PK
+        int zone_id FK
+        text name
+        text location
+    }
+    RESOURCE_TYPE {
+        int resource_type_id PK
+        text name UK
+        text intended_workload
+    }
+    RESOURCE {
+        int resource_id PK
+        int resource_type_id FK
+        int data_center_id FK
+        text local_identifier
+        text performance_tier
+        int vcpu_count
+        decimal memory_gib
+        decimal storage_gib
+        decimal network_gbps
+    }
+    RESOURCE_STATE {
+        int state_id PK
+        int resource_id FK
+        text status
+        text reason
+        timestamp starts_at
+        timestamp ends_at "nullable"
+        int recorded_by_user_id FK "nullable"
+    }
+    USER_ACCOUNT {
+        int user_id PK
+    }
+```
+
+## Member C: Deployments and services
+5 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+
+```mermaid
+erDiagram
+    direction LR
+    RESERVATION ||--o{ DEPLOYMENT : reservation_id
+    PROJECT o|--o{ DEPLOYMENT : project_id
+    DEPLOYMENT ||--o{ RESOURCE_ALLOCATION : deployment_id
+    RESERVATION_ITEM ||--o{ RESOURCE_ALLOCATION : reservation_item_id
+    RESOURCE ||--o{ RESOURCE_ALLOCATION : resource_id
+    RESOURCE_ALLOCATION o|--o{ RESOURCE_ALLOCATION : supersedes_allocation_id
+    USER_ACCOUNT o|--o{ RESOURCE_ALLOCATION : assigned_by_user_id
+    DEPLOYMENT ||--o{ DEPLOYMENT_SERVICE : deployment_id
+    SERVICE ||--o{ DEPLOYMENT_SERVICE : service_id
+    SERVICE ||--o{ SERVICE_RATE : service_id
+    DEPLOYMENT {
+        int deployment_id PK
+        int reservation_id FK
+        int project_id FK "nullable"
+        text name
+        text workload_note
+        timestamp started_at "nullable"
+        timestamp ended_at "nullable"
+        text confidentiality_level
+        text status
+        int priority
+        text scaling_mode
+    }
+    RESOURCE_ALLOCATION {
+        int allocation_id PK
+        int deployment_id FK
+        int reservation_item_id FK
+        int resource_id FK
+        decimal capacity_fraction
+        timestamp starts_at
+        timestamp ends_at "nullable"
+        text allocation_status
+        int supersedes_allocation_id FK "nullable"
+        text change_reason
+        int assigned_by_user_id FK "nullable"
+    }
+    DEPLOYMENT_SERVICE {
+        int deployment_service_id PK
+        int deployment_id FK
+        int service_id FK
+        timestamp starts_at
+        timestamp ends_at "nullable"
+    }
+    SERVICE {
+        int service_id PK
+        text name UK
+        text service_type
+        text billing_unit
+    }
+    SERVICE_RATE {
+        int service_rate_id PK
+        int service_id FK
+        timestamp valid_from
+        timestamp valid_to "nullable"
+        decimal unit_price
+    }
+    PROJECT {
+        int project_id PK
+    }
+    RESERVATION {
+        int reservation_id PK
+    }
+    RESERVATION_ITEM {
+        int reservation_item_id PK
+    }
+    RESOURCE {
+        int resource_id PK
+    }
+    USER_ACCOUNT {
+        int user_id PK
+    }
+```
+
+## Member D: Metering and billing
+6 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+
+```mermaid
+erDiagram
+    direction LR
+    DEPLOYMENT_SERVICE ||--o{ USAGE_RECORD : deployment_service_id
+    RESOURCE_ALLOCATION o|--o{ USAGE_RECORD : allocation_id
+    USAGE_RECORD o|--o| USAGE_RECORD : supersedes_usage_id
+    CLIENT ||--o{ BILLING_ACCOUNT : responsible_client_id
+    USER_ACCOUNT o|--o{ BILLING_ACCOUNT : billing_contact_user_id
+    USAGE_RECORD o|--o| CHARGE : usage_id
+    DEPLOYMENT_SERVICE o|--o{ CHARGE : deployment_service_id
+    SERVICE_RATE o|--o{ CHARGE : service_rate_id
+    CHARGE o|--o{ CHARGE : adjustment_of_charge_id
+    USER_ACCOUNT o|--o{ CHARGE : authorized_by_user_id
+    CHARGE ||--o{ CHARGE_SHARE : charge_id
+    BILLING_ACCOUNT ||--o{ CHARGE_SHARE : billing_account_id
+    BILLING_ACCOUNT ||--o{ INVOICE : billing_account_id
+    CHARGE_SHARE ||--o| INVOICE_LINE : charge_share_id
+    INVOICE ||--o{ INVOICE_LINE : invoice_id
+    USAGE_RECORD {
+        int usage_id PK
+        int deployment_service_id FK
+        int allocation_id FK "nullable"
+        decimal quantity
+        timestamp period_start
+        timestamp period_end
+        text record_type
+        timestamp recorded_at
+        int supersedes_usage_id FK, UK "nullable"
+    }
+    BILLING_ACCOUNT {
+        int billing_account_id PK
+        int responsible_client_id FK
+        text name
+        int billing_contact_user_id FK "nullable"
+    }
+    CHARGE {
+        int charge_id PK
+        int usage_id FK, UK "nullable"
+        int deployment_service_id FK "nullable"
+        int service_rate_id FK "nullable"
+        int adjustment_of_charge_id FK "nullable"
+        int authorized_by_user_id FK "nullable"
+        text charge_type
+        decimal amount
+        text status
+        text reason
+        timestamp created_at
+    }
+    CHARGE_SHARE {
+        int charge_share_id PK
+        int charge_id FK
+        int billing_account_id FK
+        decimal allocated_amount
+    }
+    INVOICE {
+        int invoice_id PK
+        int billing_account_id FK
+        timestamp issued_at
+        timestamp due_at
+        text status
+    }
+    INVOICE_LINE {
+        int charge_share_id PK, FK
+        int invoice_id FK
+    }
+    CLIENT {
+        int client_id PK
+    }
+    DEPLOYMENT_SERVICE {
+        int deployment_service_id PK
+    }
+    RESOURCE_ALLOCATION {
+        int allocation_id PK
+    }
+    SERVICE_RATE {
+        int service_rate_id PK
+    }
+    USER_ACCOUNT {
+        int user_id PK
+    }
+```
+
