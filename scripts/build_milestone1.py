@@ -19,34 +19,25 @@ raw={'Clients and people': {'CLIENT': 'client_id:int '
                         'CLIENT_MEMBERSHIP': 'membership_id:int '
                                              'PK;client_id:int->CLIENT;user_id:int->USER_ACCOUNT;role:text;valid_from:timestamp;valid_to:timestamp?',
                         'PROJECT': 'project_id:int PK;client_id:int->CLIENT;name:text'},
- 'Infrastructure and history': {'REGION': 'region_id:int PK;name:text UK;regulatory_note:text',
-                                'AVAILABILITY_ZONE': 'zone_id:int '
-                                                     'PK;region_id:int->REGION;name:text;redundancy_note:text;connectivity_note:text',
-                                'DATA_CENTER': 'data_center_id:int '
-                                               'PK;zone_id:int->AVAILABILITY_ZONE;name:text;location:text',
-                                'RESOURCE_TYPE': 'resource_type_id:int PK;name:text UK;intended_workload:text',
-                                'RESOURCE': 'resource_id:int '
-                                            'PK;resource_type_id:int->RESOURCE_TYPE;data_center_id:int->DATA_CENTER;local_identifier:text;is_logical:boolean',
-                                'RESOURCE_CONFIGURATION': 'configuration_id:int '
-                                                          'PK;resource_id:int->RESOURCE;performance_tier:text;vcpu_count:int;memory_gib:decimal;storage_gib:decimal;network_gbps:decimal;valid_from:timestamp;valid_to:timestamp?',
-                                'RESOURCE_STATE': 'state_id:int '
-                                                  'PK;resource_id:int->RESOURCE;status:text;reason:text;starts_at:timestamp;ends_at:timestamp?;recorded_by_user_id:int->USER_ACCOUNT?',
-                                'RESOURCE_RELATIONSHIP': 'relationship_id:int '
-                                                         'PK;source_resource_id:int->RESOURCE;target_resource_id:int->RESOURCE;relationship_type:text;valid_from:timestamp;valid_to:timestamp?'},
- 'Reservations and revisions': {'RESERVATION': 'reservation_id:int '
-                                               'PK;client_id:int->CLIENT;created_at:timestamp;status:text;agreement_note:text?',
-                                'RESERVATION_REVISION': 'revision_id:int '
-                                                        'PK;reservation_id:int->RESERVATION;revision_number:int;start_time:timestamp;end_time:timestamp;change_reason:text;created_at:timestamp;changed_by_user_id:int->USER_ACCOUNT;approved_by_user_id:int->USER_ACCOUNT?',
-                                'RESERVATION_ITEM': 'reservation_item_id:int '
-                                                    'PK;revision_id:int->RESERVATION_REVISION;resource_type_id:int->RESOURCE_TYPE;quantity:int;min_vcpu:int;min_memory_gib:decimal;min_storage_gib:decimal;min_network_gbps:decimal;preferred_region_id:int->REGION?;preferred_zone_id:int->AVAILABILITY_ZONE?;preferred_data_center_id:int->DATA_CENTER?;location_mode:text',
-                                'RESERVATION_SERVICE': 'reservation_item_id:int PK->RESERVATION_ITEM;service_id:int '
-                                                       'PK->SERVICE;quantity:decimal'},
+ 'Infrastructure and availability': {'REGION': 'region_id:int PK;name:text UK;regulatory_note:text',
+                                     'AVAILABILITY_ZONE': 'zone_id:int '
+                                                          'PK;region_id:int->REGION;name:text;redundancy_note:text;connectivity_note:text',
+                                     'DATA_CENTER': 'data_center_id:int '
+                                                    'PK;zone_id:int->AVAILABILITY_ZONE;name:text;location:text',
+                                     'RESOURCE_TYPE': 'resource_type_id:int PK;name:text '
+                                                      'UK;intended_workload:text',
+                                     'RESOURCE': 'resource_id:int '
+                                                 'PK;resource_type_id:int->RESOURCE_TYPE;data_center_id:int->DATA_CENTER;local_identifier:text;performance_tier:text;vcpu_count:int;memory_gib:decimal;storage_gib:decimal;network_gbps:decimal',
+                                     'RESOURCE_STATE': 'state_id:int '
+                                                       'PK;resource_id:int->RESOURCE;status:text;reason:text;starts_at:timestamp;ends_at:timestamp?;recorded_by_user_id:int->USER_ACCOUNT?'},
+ 'Reservations and requests': {'RESERVATION': 'reservation_id:int '
+                                              'PK;client_id:int->CLIENT;created_at:timestamp;start_time:timestamp;end_time:timestamp;status:text;agreement_note:text?;approved_by_user_id:int->USER_ACCOUNT?',
+                               'RESERVATION_ITEM': 'reservation_item_id:int '
+                                                   'PK;reservation_id:int->RESERVATION;resource_type_id:int->RESOURCE_TYPE;quantity:int;min_vcpu:int;min_memory_gib:decimal;min_storage_gib:decimal;min_network_gbps:decimal;preferred_region_id:int->REGION?;preferred_zone_id:int->AVAILABILITY_ZONE?;preferred_data_center_id:int->DATA_CENTER?;location_mode:text'},
  'Deployments and assignments': {'DEPLOYMENT': 'deployment_id:int '
-                                               'PK;reservation_id:int->RESERVATION;project_id:int->PROJECT?;name:text;workload_note:text;started_at:timestamp?;ended_at:timestamp?;confidentiality_level:text',
-                                 'DEPLOYMENT_EVENT': 'event_id:int '
-                                                     'PK;deployment_id:int->DEPLOYMENT;event_type:text;priority_after:int?;scaling_mode_after:text?;event_time:timestamp;reason:text;actor_user_id:int->USER_ACCOUNT?',
+                                               'PK;reservation_id:int->RESERVATION;project_id:int->PROJECT?;name:text;workload_note:text;started_at:timestamp?;ended_at:timestamp?;confidentiality_level:text;status:text;priority:int;scaling_mode:text',
                                  'RESOURCE_ALLOCATION': 'allocation_id:int '
-                                                        'PK;deployment_id:int->DEPLOYMENT;reservation_item_id:int->RESERVATION_ITEM;configuration_id:int->RESOURCE_CONFIGURATION;capacity_fraction:decimal;starts_at:timestamp;ends_at:timestamp?;allocation_status:text;supersedes_allocation_id:int->RESOURCE_ALLOCATION?;change_reason:text;assigned_by_user_id:int->USER_ACCOUNT?',
+                                                        'PK;deployment_id:int->DEPLOYMENT;reservation_item_id:int->RESERVATION_ITEM;resource_id:int->RESOURCE;capacity_fraction:decimal;starts_at:timestamp;ends_at:timestamp?;allocation_status:text;supersedes_allocation_id:int->RESOURCE_ALLOCATION?;change_reason:text;assigned_by_user_id:int->USER_ACCOUNT?',
                                  'DEPLOYMENT_SERVICE': 'deployment_service_id:int '
                                                        'PK;deployment_id:int->DEPLOYMENT;service_id:int->SERVICE;starts_at:timestamp;ends_at:timestamp?'},
  'Services, rates and metering': {'SERVICE': 'service_id:int PK;name:text UK;service_type:text;billing_unit:text',
@@ -57,14 +48,10 @@ raw={'Clients and people': {'CLIENT': 'client_id:int '
                                                   'UK?'},
  'Billing and invoices': {'BILLING_ACCOUNT': 'billing_account_id:int '
                                              'PK;responsible_client_id:int->CLIENT;name:text;billing_contact_user_id:int->USER_ACCOUNT?',
-                          'BILLING_RULE': 'billing_rule_id:int '
-                                          'PK;deployment_id:int->DEPLOYMENT;valid_from:timestamp;valid_to:timestamp?;rule_note:text',
-                          'BILLING_RULE_SHARE': 'billing_rule_id:int PK->BILLING_RULE;billing_account_id:int '
-                                                'PK->BILLING_ACCOUNT;share_fraction:decimal',
                           'CHARGE': 'charge_id:int PK;usage_id:int->USAGE_RECORD '
                                     'UK?;deployment_service_id:int->DEPLOYMENT_SERVICE?;service_rate_id:int->SERVICE_RATE?;adjustment_of_charge_id:int->CHARGE?;authorized_by_user_id:int->USER_ACCOUNT?;charge_type:text;amount:decimal;status:text;reason:text;created_at:timestamp',
                           'CHARGE_SHARE': 'charge_share_id:int '
-                                          'PK;charge_id:int->CHARGE;billing_account_id:int->BILLING_ACCOUNT;billing_rule_id:int->BILLING_RULE?;allocated_amount:decimal',
+                                          'PK;charge_id:int->CHARGE;billing_account_id:int->BILLING_ACCOUNT;allocated_amount:decimal',
                           'INVOICE': 'invoice_id:int '
                                      'PK;billing_account_id:int->BILLING_ACCOUNT;issued_at:timestamp;due_at:timestamp;status:text',
                           'INVOICE_LINE': 'charge_share_id:int PK->CHARGE_SHARE;invoice_id:int->INVOICE'}}
@@ -149,7 +136,7 @@ def pdf_text(md,path):
 c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),pagesize=letter)
 c.setTitle('Group 4 - CloudNine Systems - 3NF ERD')
 c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',26);c.drawString(48,710,'CloudNine Systems');c.setFont('Helvetica-Bold',18);c.drawString(48,680,'Group 4 | Milestone 1 ERD')
-intro=[f'{N} tables organized into {len(modules)} connected modules.','Logical relational design in Third Normal Form (3NF).','Each module page shows all owned attributes and incoming FK relationships.','Gray entities are references to tables fully defined on another module page.','Relationship ends: 1 = required parent; 0..1 = optional parent;','0..* = zero or more children; 0..1 child = unique foreign key.','PK = primary key; FK = foreign key; UK = additional unique key.','? means nullable. Composite PKs are marked on every participating column.','Minimum child counts are enforced by lifecycle rules, not by ordinary FKs.','XOR, time interval, capacity and accounting rules appear in the analysis report.','All monetary values are USD. All timestamps are UTC.','The editable Mermaid and generation script accompany this PDF.']
+intro=[f'{N} tables organized into {len(modules)} connected modules.','Logical relational design in Third Normal Form (3NF).','Each module page shows all owned attributes and incoming FK relationships.','Gray entities are references to tables fully defined on another module page.','Relationship ends: 1 = required parent; 0..1 = optional parent;','0..* = zero or more children; 0..1 child = unique foreign key.','PK = primary key; FK = foreign key; UK = additional unique key.','? means nullable. Composite PKs are marked on every participating column.','Minimum child counts are enforced by lifecycle rules, not by ordinary FKs.','Composite unique keys, XOR, time and accounting rules appear in the report.','All monetary values are USD. All timestamps are UTC.','The editable Mermaid and generation script accompany this PDF.']
 y=640
 for line in intro:
  c.setFont('Helvetica',10);c.drawString(48,y,line);y-=21
@@ -161,7 +148,7 @@ c.setPageSize((792,612))
 c.setFillColor(colors.HexColor('#16324f')); c.setFont('Helvetica-Bold',22)
 c.drawString(36,570,'Core workflow overview')
 c.setFont('Helvetica',11); c.drawString(36,548,'Read this first; detailed entities, keys and cardinalities follow on the module pages.')
-boxes=[(40,420,'CLIENT','Who requests the work?'),(285,420,'RESERVATION','What capacity is requested?'),(530,420,'DEPLOYMENT','What work is running?'),(530,290,'RESOURCE_ALLOCATION','Which configurations are assigned?'),(285,290,'USAGE_RECORD','What was consumed?'),(40,290,'CHARGE','What does it cost?'),(40,160,'CHARGE_SHARE','Which account pays each share?'),(285,160,'INVOICE','What is billed to that account?')]
+boxes=[(40,420,'CLIENT','Who requests the work?'),(285,420,'RESERVATION','What capacity is requested?'),(530,420,'DEPLOYMENT','What work is running?'),(530,290,'RESOURCE_ALLOCATION','Which resources are assigned?'),(285,290,'USAGE_RECORD','What was consumed?'),(40,290,'CHARGE','What does it cost?'),(40,160,'CHARGE_SHARE','Which account pays each share?'),(285,160,'INVOICE','What is billed to that account?')]
 for x,y,title,subtitle in boxes:
  c.setFillColor(colors.HexColor('#edf3f8')); c.setStrokeColor(colors.HexColor('#16324f')); c.roundRect(x,y,220,72,8,fill=1,stroke=1)
  c.setFillColor(colors.HexColor('#16324f')); c.setFont('Helvetica-Bold',11);c.drawString(x+10,y+45,title)
@@ -173,7 +160,7 @@ def arrow(x1,y1,x2,y2):
  for delta in (-0.45,0.45): c.line(x2,y2,x2-8*math.cos(angle+delta),y2-8*math.sin(angle+delta))
 for coords in [(260,456,285,456),(505,456,530,456),(640,420,640,362),(530,326,505,326),(285,326,260,326),(150,290,150,232),(260,196,285,196)]: arrow(*coords)
 c.setFont('Helvetica',10); c.drawString(40,108,'Conceptual flow only: intermediate service, pricing and invoice-line tables are omitted here.')
-c.drawString(40,89,'The following six module pages define the full 30-table logical model and FK multiplicities.')
+c.drawString(40,89,f'The following {len(modules)} module pages define the {N}-table model and FK multiplicities.')
 c.setFont('Helvetica',9); c.drawString(36,22,'Group 4 | CloudNine Systems | ERD page 2 of 8'); c.showPage()
 for i,module in enumerate(modules,1):
  d=svg2rlg(str(TMP/f'module{i}.svg'))

@@ -8,29 +8,20 @@ erDiagram
     AVAILABILITY_ZONE ||--o{ DATA_CENTER : zone_id
     RESOURCE_TYPE ||--o{ RESOURCE : resource_type_id
     DATA_CENTER ||--o{ RESOURCE : data_center_id
-    RESOURCE ||--o{ RESOURCE_CONFIGURATION : resource_id
     RESOURCE ||--o{ RESOURCE_STATE : resource_id
     USER_ACCOUNT o|--o{ RESOURCE_STATE : recorded_by_user_id
-    RESOURCE ||--o{ RESOURCE_RELATIONSHIP : source_resource_id
-    RESOURCE ||--o{ RESOURCE_RELATIONSHIP : target_resource_id
     CLIENT ||--o{ RESERVATION : client_id
-    RESERVATION ||--o{ RESERVATION_REVISION : reservation_id
-    USER_ACCOUNT ||--o{ RESERVATION_REVISION : changed_by_user_id
-    USER_ACCOUNT o|--o{ RESERVATION_REVISION : approved_by_user_id
-    RESERVATION_REVISION ||--o{ RESERVATION_ITEM : revision_id
+    USER_ACCOUNT o|--o{ RESERVATION : approved_by_user_id
+    RESERVATION ||--o{ RESERVATION_ITEM : reservation_id
     RESOURCE_TYPE ||--o{ RESERVATION_ITEM : resource_type_id
     REGION o|--o{ RESERVATION_ITEM : preferred_region_id
     AVAILABILITY_ZONE o|--o{ RESERVATION_ITEM : preferred_zone_id
     DATA_CENTER o|--o{ RESERVATION_ITEM : preferred_data_center_id
-    RESERVATION_ITEM ||--o{ RESERVATION_SERVICE : reservation_item_id
-    SERVICE ||--o{ RESERVATION_SERVICE : service_id
     RESERVATION ||--o{ DEPLOYMENT : reservation_id
     PROJECT o|--o{ DEPLOYMENT : project_id
-    DEPLOYMENT ||--o{ DEPLOYMENT_EVENT : deployment_id
-    USER_ACCOUNT o|--o{ DEPLOYMENT_EVENT : actor_user_id
     DEPLOYMENT ||--o{ RESOURCE_ALLOCATION : deployment_id
     RESERVATION_ITEM ||--o{ RESOURCE_ALLOCATION : reservation_item_id
-    RESOURCE_CONFIGURATION ||--o{ RESOURCE_ALLOCATION : configuration_id
+    RESOURCE ||--o{ RESOURCE_ALLOCATION : resource_id
     RESOURCE_ALLOCATION o|--o{ RESOURCE_ALLOCATION : supersedes_allocation_id
     USER_ACCOUNT o|--o{ RESOURCE_ALLOCATION : assigned_by_user_id
     DEPLOYMENT ||--o{ DEPLOYMENT_SERVICE : deployment_id
@@ -41,9 +32,6 @@ erDiagram
     USAGE_RECORD o|--o| USAGE_RECORD : supersedes_usage_id
     CLIENT ||--o{ BILLING_ACCOUNT : responsible_client_id
     USER_ACCOUNT o|--o{ BILLING_ACCOUNT : billing_contact_user_id
-    DEPLOYMENT ||--o{ BILLING_RULE : deployment_id
-    BILLING_RULE ||--o{ BILLING_RULE_SHARE : billing_rule_id
-    BILLING_ACCOUNT ||--o{ BILLING_RULE_SHARE : billing_account_id
     USAGE_RECORD o|--o| CHARGE : usage_id
     DEPLOYMENT_SERVICE o|--o{ CHARGE : deployment_service_id
     SERVICE_RATE o|--o{ CHARGE : service_rate_id
@@ -51,7 +39,6 @@ erDiagram
     USER_ACCOUNT o|--o{ CHARGE : authorized_by_user_id
     CHARGE ||--o{ CHARGE_SHARE : charge_id
     BILLING_ACCOUNT ||--o{ CHARGE_SHARE : billing_account_id
-    BILLING_RULE o|--o{ CHARGE_SHARE : billing_rule_id
     BILLING_ACCOUNT ||--o{ INVOICE : billing_account_id
     CHARGE_SHARE ||--o| INVOICE_LINE : charge_share_id
     INVOICE ||--o{ INVOICE_LINE : invoice_id
@@ -112,18 +99,11 @@ erDiagram
         int resource_type_id FK
         int data_center_id FK
         text local_identifier
-        boolean is_logical
-    }
-    RESOURCE_CONFIGURATION {
-        int configuration_id PK
-        int resource_id FK
         text performance_tier
         int vcpu_count
         decimal memory_gib
         decimal storage_gib
         decimal network_gbps
-        timestamp valid_from
-        timestamp valid_to "nullable"
     }
     RESOURCE_STATE {
         int state_id PK
@@ -134,35 +114,19 @@ erDiagram
         timestamp ends_at "nullable"
         int recorded_by_user_id FK "nullable"
     }
-    RESOURCE_RELATIONSHIP {
-        int relationship_id PK
-        int source_resource_id FK
-        int target_resource_id FK
-        text relationship_type
-        timestamp valid_from
-        timestamp valid_to "nullable"
-    }
     RESERVATION {
         int reservation_id PK
         int client_id FK
         timestamp created_at
-        text status
-        text agreement_note "nullable"
-    }
-    RESERVATION_REVISION {
-        int revision_id PK
-        int reservation_id FK
-        int revision_number
         timestamp start_time
         timestamp end_time
-        text change_reason
-        timestamp created_at
-        int changed_by_user_id FK
+        text status
+        text agreement_note "nullable"
         int approved_by_user_id FK "nullable"
     }
     RESERVATION_ITEM {
         int reservation_item_id PK
-        int revision_id FK
+        int reservation_id FK
         int resource_type_id FK
         int quantity
         int min_vcpu
@@ -174,11 +138,6 @@ erDiagram
         int preferred_data_center_id FK "nullable"
         text location_mode
     }
-    RESERVATION_SERVICE {
-        int reservation_item_id PK, FK
-        int service_id PK, FK
-        decimal quantity
-    }
     DEPLOYMENT {
         int deployment_id PK
         int reservation_id FK
@@ -188,22 +147,15 @@ erDiagram
         timestamp started_at "nullable"
         timestamp ended_at "nullable"
         text confidentiality_level
-    }
-    DEPLOYMENT_EVENT {
-        int event_id PK
-        int deployment_id FK
-        text event_type
-        int priority_after "nullable"
-        text scaling_mode_after "nullable"
-        timestamp event_time
-        text reason
-        int actor_user_id FK "nullable"
+        text status
+        int priority
+        text scaling_mode
     }
     RESOURCE_ALLOCATION {
         int allocation_id PK
         int deployment_id FK
         int reservation_item_id FK
-        int configuration_id FK
+        int resource_id FK
         decimal capacity_fraction
         timestamp starts_at
         timestamp ends_at "nullable"
@@ -249,18 +201,6 @@ erDiagram
         text name
         int billing_contact_user_id FK "nullable"
     }
-    BILLING_RULE {
-        int billing_rule_id PK
-        int deployment_id FK
-        timestamp valid_from
-        timestamp valid_to "nullable"
-        text rule_note
-    }
-    BILLING_RULE_SHARE {
-        int billing_rule_id PK, FK
-        int billing_account_id PK, FK
-        decimal share_fraction
-    }
     CHARGE {
         int charge_id PK
         int usage_id FK, UK "nullable"
@@ -278,7 +218,6 @@ erDiagram
         int charge_share_id PK
         int charge_id FK
         int billing_account_id FK
-        int billing_rule_id FK "nullable"
         decimal allocated_amount
     }
     INVOICE {

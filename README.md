@@ -1,6 +1,6 @@
 # Group 4 - CloudNine Systems
 
-Milestone 1: a proposed 30-table, 3NF logical design for a cloud infrastructure information system.
+Milestone 1: a proposed 23-table, 3NF logical design for a cloud infrastructure information system.
 
 ## Submission documents
 
@@ -9,6 +9,10 @@ Milestone 1: a proposed 30-table, 3NF logical design for a cloud infrastructure 
 3. [Team statement](output/pdf/Group4_Team_Statement.pdf): proposed four-person division of work, accountability, support and workload balancing.
 
 Submit this repository URL: https://github.com/kechavious/CloudNine_Systems
+
+## Core scope
+
+The model keeps requests, resource allocations, usage, direct cost sharing and invoices. Reservation revisions, resource dependency/configuration-history tables, deployment event logs and automatic sharing rules have been removed. The analysis report explains these tradeoffs. This version supersedes earlier designs, which remain available in Git history.
 
 ## Before submission
 

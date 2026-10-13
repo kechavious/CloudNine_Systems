@@ -2,11 +2,11 @@
 ## Milestone 1: Understanding and work plan
 Status: proposed plan for four members. Names, assignments and member acceptance must be confirmed before submission.
 ## Shared understanding
-We are designing a database for CloudNine Systems that connects reservations, resource allocation, deployment changes, usage and billing. Our 30-table design separates requested capacity from actual assignments, resource users from payers, and estimates from final charges. Each member will review the complete model and explain a reservation-to-invoice example.
+We are designing a database for CloudNine Systems that connects reservations, resource allocation, deployment changes, usage and billing. Our 23-table design separates requested capacity from actual assignments, resource users from payers, and estimates from final charges. Each member will review the complete model and explain a reservation-to-invoice example.
 ## Proposed division of work
 Member A - [name pending]: clients, user accounts, memberships and projects; corresponding analysis sections. Peer reviewer: Member C.
-Member B - [name pending]: geography, resources, configurations, capacities, dependencies and availability. Peer reviewer: Member D.
-Member C - [name pending]: reservations, revisions, deployments, allocations and usage tracking. Peer reviewer: Member A.
+Member B - [name pending]: geography, resources, capacities and availability. Peer reviewer: Member D.
+Member C - [name pending]: reservations, request items, deployments, allocations and usage tracking. Peer reviewer: Member A.
 Member D - [name pending]: service pricing, charges, cost sharing and invoices. Peer reviewer: Member B. Split pricing and invoicing tasks if this package requires more effort than the others.
 All members review cross-module relationships and 3NF reasoning, contribute to the report, and check the final PDFs. Integration and repository administration rotate; their effort counts toward each member's workload. Package sizes are starting proposals, not proof of equal effort.
 ## Accountability and peer review
