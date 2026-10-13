@@ -171,7 +171,7 @@ for member,(title,names) in views.items():
    parts.append(f'        {field["type"]} {field["name"]}'+(' '+flags if flags else '')+(' "nullable"' if field['nullable'] else ''))
   parts.append('    }')
  parts += ['```','']
-(DOC/'Group4_ERD_Views.md').write_text('\n'.join(parts)+'\n')
+(DOC/'Group4_ERD_Views.md').write_text('\n'.join(parts).rstrip()+'\n')
 styles=getSampleStyleSheet()
 styles.add(ParagraphStyle(name='BodyCustom',fontName='Helvetica',fontSize=10,leading=14,spaceAfter=8,textColor=colors.HexColor('#243247')))
 styles.add(ParagraphStyle(name='TitleCustom',fontName='Helvetica-Bold',fontSize=23,leading=28,spaceAfter=16,textColor=colors.HexColor('#16324f')))

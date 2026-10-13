@@ -310,4 +310,3 @@ erDiagram
         int user_id PK
     }
 ```
-
