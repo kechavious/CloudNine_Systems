@@ -10,6 +10,17 @@ Milestone 1: a proposed 23-table, 3NF logical design for a cloud infrastructure 
 
 Submit this repository URL: https://github.com/kechavious/CloudNine_Systems
 
+## Milestone 1 requirements
+
+| Assignment requirement | Location |
+|---|---|
+| ERD as a PDF, normalized to 3NF | ERD PDF; normalization reasoning and integrity assumptions in analysis sections 3-4 |
+| Draft analysis of the scenario, organizational schema and assumptions | Analysis report sections 1-5 |
+| Team understanding, equitable division, accountability and mutual support | Team Statement; member confirmation is pending |
+| GitHub repository shared by all team members | This repository; all four members must confirm access before submission |
+
+This submission is design-only. Database implementation, sample data, queries and web pages are planned for later milestones. The PDF generator is a documentation tool, not an implemented cloud management application. The team statement is a proposed plan until the members confirm it.
+
 ## Core scope
 
 The model keeps requests, resource allocations, usage, direct cost sharing and invoices. Reservation revisions, resource dependency/configuration-history tables, deployment event logs and automatic sharing rules have been removed. The analysis report explains these tradeoffs. This version supersedes earlier designs, which remain available in Git history.
