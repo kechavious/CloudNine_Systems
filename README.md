@@ -1,41 +1,28 @@
 # Group 4 - CloudNine Systems
 
-Milestone 1 design package for a database-driven cloud infrastructure information system.
+Milestone 1: a proposed 30-table, 3NF logical design for a cloud infrastructure information system.
 
-Repository URL: https://github.com/kechavious/CloudNine_Systems
+## Submission documents
 
-## Milestone 1 deliverables
+1. [ERD PDF](output/pdf/Group4_ERD.pdf): a core workflow overview and six detailed module diagrams with attributes, keys, nullability and relationship multiplicities.
+2. [Draft analysis report](output/pdf/Group4_Analysis_Draft.pdf): scenario, organizational schema, design decisions, assumptions, 3NF rationale and scope limitations.
+3. [Team statement](output/pdf/Group4_Team_Statement.pdf): proposed four-person division of work, accountability, support and workload balancing.
 
-1. [3NF ERD (PDF)](output/pdf/Group4_ERD.pdf) - 30 tables, with six detailed module diagrams, keys, nullability and relationship multiplicities.
-2. [Draft analysis report (PDF)](output/pdf/Group4_Analysis_Draft.pdf) - scenario, schema, assumptions, normalization rationale, integrity rules and limitations.
-3. [Team statement (PDF)](output/pdf/Group4_Team_Statement.pdf) - proposed equitable work packages, accountability, peer review, support and workload rebalancing.
+Submit this repository URL: https://github.com/kechavious/CloudNine_Systems
 
-The ERD is a logical design. Database implementation, data exports, queries and the web interface are subsequent work.
+## Before submission
+
+Replace member placeholders and confirm work owners, reviewers and the team plan. Ensure all four members have repository access and the instructor can open the URL. Review the final PDFs together. Pending confirmations are not represented as completed.
 
 ## Editable sources
 
-- [Analysis draft](docs/milestone1/Group4_Analysis_Draft.md)
+- [Analysis report](docs/milestone1/Group4_Analysis_Draft.md)
 - [Team statement](docs/milestone1/Group4_Team_Statement.md)
 - [Mermaid ERD](docs/milestone1/Group4_ERD.mmd)
-- [Canonical schema JSON](docs/milestone1/Group4_Schema.json)
-- [Data dictionary](docs/milestone1/Group4_Data_Dictionary.md)
-- [Document generation script](scripts/build_milestone1.py)
+- [PDF and ERD generator](scripts/build_milestone1.py): canonical table definitions are maintained here.
 
-## Before submitting the repository URL
+The course [project requirements](Group%20Project%20-%20DB.pdf) and [CloudNine scenario](Group%20Project_%20CloudNine%20Systems.pdf) are retained as references. Database implementation, exports, queries and the web interface belong to later milestones.
 
-- The team has four members. Replace Member A-D placeholders with confirmed names, GitHub usernames, owners and reviewers.
-- Confirm the team's agreement, communication schedule, course deadline and internal review date.
-- Confirm every member has collaborator access and the instructor can open the repository.
-- Review the proposed assumptions and the 30-table scope together. The team statement is a proposed plan until members confirm it.
+## Regenerate
 
-These confirmations require the team's input; they have not been represented as completed.
-
-## Assignment sources
-
-The scenario comes from [CloudNine Systems](Group%20Project_%20CloudNine%20Systems.pdf); general project requirements come from [the course project handout](Group%20Project%20-%20DB.pdf).
-
-The repository contains the current 30-table Milestone 1 design. Superseded designs have been removed from the current file tree and remain recoverable through Git history.
-
-## Regeneration
-
-The generator requires Python with reportlab, svglib and pypdfium2 for PDF verification, plus Node.js and @viz-js/viz for Graphviz rendering. Its bundled-runtime paths reflect the authoring environment and may need adjustment on another computer. Run `python scripts/build_milestone1.py` from this repository after installing or locating those dependencies. The editable analysis and team-statement Markdown files are the authoritative text sources read by the generator. Schema definitions are maintained in the generator.
+Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Graphviz rendering uses Node.js and @viz-js/viz; the bundled runtime paths in the script may need adjustment on another computer. Edit the Markdown files for report text, and the generator for schema changes. Temporary render files are ignored by Git.

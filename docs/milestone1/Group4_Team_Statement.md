@@ -1,32 +1,25 @@
 # Group 4 - Team Statement
-## Milestone 1: Shared understanding and work plan
-Status: proposed agreement for member review. The team has four members. Names, GitHub usernames, individual assignments and adoption remain pending. This document records the intended process; it does not claim that meetings, reviews or equal contributions have already occurred.
+## Milestone 1: Understanding and work plan
+Status: proposed plan for four members. Names, assignments and member acceptance must be confirmed before submission.
 ## Shared understanding
-We propose to build a database-backed information system for CloudNine Systems. Its purpose is to connect client requests, infrastructure availability, deployment changes, measured usage and financial responsibility. We distinguish requested capacity from actual assignment, resource users from payers, and estimates from finalized charges. We will prioritize a coherent 3NF schema and explain assumptions and limitations.
-For Milestone 1, our shared repository will contain the ERD PDF, draft analysis report and this team statement. Each member will review the full design and be able to explain a reservation-to-invoice example, rather than understanding only an assigned section.
-## Roster and equitable division
-Our team has four members. The following four work packages are proposed for Member A-D until names and GitHub usernames are provided. Final ownership will be agreed after reviewing each member's skills and availability.
-Member A: [name pending]. Lead clients, user accounts, memberships and projects; draft the corresponding report sections. Review Member C's reservation and deployment work.
-Member B: [name pending]. Lead geography, resources, configurations, capacities, dependencies and availability. Review Member D's billing and normalization work.
-Member C: [name pending]. Lead reservations, revisions, deployments, allocations and metering. Review Member A's client and people work.
-Member D: [name pending]. Lead service rates, usage charges, cost sharing and invoices. Review Member B's resource and history work. Because this package is broad, split pricing and invoicing into separate issues and transfer one to another member if estimates exceed the group's target workload.
-All members: review cross-module relationships and 3NF reasoning; contribute to the analysis; verify the final PDFs. Integration and repository administration rotate between milestones and count as assigned work. No person is permanently responsible for all documentation, testing or cleanup.
-## Accountability and visibility
-Use one GitHub Issue per concrete task, with an owner, reviewer, acceptance criteria, estimated effort and due date. Agree on actual due dates after confirming the course deadline. The board will use To do, In progress, Review and Done. A task is complete when its artifact is linked and its reviewer has checked it.
-Use a feature branch and pull request for changes. The author summarizes the change and affected assumptions; another member reviews keys, relationships, constraints and document consistency. Every member confirms collaborator access and makes a small identifiable contribution. Commit counts are supporting evidence, not a measure of equal effort.
-Hold two short check-ins each week at times agreed by the group. Each member reports completed work, next work and blockers. Record decisions, scope changes and reassigned issues in the repository. Notify the group promptly if a task is at risk; do not wait until the deadline.
-## Support and prevention of uneven workload
-Compare estimated remaining hours and task difficulty at each check-in. Start with comparable total effort per person, including reviews and integration, then rebalance when estimates change. If a member's remaining load materially exceeds others' or a task is blocked for a day, split or transfer work and update the issue owner and reviewer.
-A blocked member first describes what they tried and the specific obstacle. A teammate pairs with them to resolve it; ownership can transfer if needed. This is a shared responsibility, not a penalty for asking for help. Availability changes should trigger a new plan agreed by the group.
-Keep a brief contribution log covering design, coding, writing, review, debugging and coordination. Discuss imbalances using that evidence and remaining work, rather than counting commits. Set an internal review target at least 48 hours before the course deadline where scheduling permits, leaving time for corrections and avoiding last-minute rescue work by one person.
-## Review gates
-Gate 1 - Scope: all members confirm the scenario, assumptions and requirements coverage.
-Gate 2 - Design: each module receives a peer review; the group checks cross-module foreign keys, cardinalities, candidate keys and 3NF dependencies.
-Gate 3 - Submission: verify that the three deliverables exist, diagrams are readable, document links work and the instructor can access the repository. Confirm all members have access before describing it as a shared repository.
-## Adoption record - complete before submission
-Confirmed team size: four members.
+We are designing a database for CloudNine Systems that connects reservations, resource allocation, deployment changes, usage and billing. Our 30-table design separates requested capacity from actual assignments, resource users from payers, and estimates from final charges. Each member will review the complete model and explain a reservation-to-invoice example.
+## Proposed division of work
+Member A - [name pending]: clients, user accounts, memberships and projects; corresponding analysis sections. Peer reviewer: Member C.
+Member B - [name pending]: geography, resources, configurations, capacities, dependencies and availability. Peer reviewer: Member D.
+Member C - [name pending]: reservations, revisions, deployments, allocations and usage tracking. Peer reviewer: Member A.
+Member D - [name pending]: service pricing, charges, cost sharing and invoices. Peer reviewer: Member B. Split pricing and invoicing tasks if this package requires more effort than the others.
+All members review cross-module relationships and 3NF reasoning, contribute to the report, and check the final PDFs. Integration and repository administration rotate; their effort counts toward each member's workload. Package sizes are starting proposals, not proof of equal effort.
+## Accountability and peer review
+Track each task in a GitHub Issue with an owner, reviewer, expected result, estimated effort and due date. Use To do, In progress, Review and Done statuses. A task is complete after its artifact is linked and its reviewer has checked it.
+Use branches and pull requests. Another member checks keys, relationships, assumptions and consistency before integration. Keep a brief contribution log including design, writing, implementation, review, debugging and coordination; commit counts alone do not measure contribution.
+## Support and balanced workload
+Propose two short check-ins each week at times agreed by the group. Discuss progress, next steps, blockers and remaining effort. Report risks promptly and record decisions and reassigned work in the repository.
+Compare task difficulty and estimated remaining hours at each check-in. Split or transfer tasks when one member carries substantially more work or is blocked for a day. Pair with a blocked teammate, update ownership when needed, and adjust the plan for availability changes. Documentation and last-minute integration are shared work.
+Aim to complete an internal review at least 48 hours before the course deadline where possible. Each member checks one other module and the group checks cross-module links, PDF readability and repository access.
+## Confirmation before submission
+Formal group name: Group 4. Team size: four members.
 Member names and GitHub usernames: [pending].
-Final work package owners and reviewers: [pending].
-Communication channel and check-in schedule: [pending].
+Confirmed work package owners and reviewers: [pending].
+Communication channel and check-in times: [pending].
 Course deadline and internal review date: [pending].
-Agreement: each member records their acceptance through a roster pull request review or an individual acknowledgment in the repository. This statement becomes the group's adopted plan only after those confirmations.
+Each member confirms the scope, assignments and cooperation plan through a pull request review or individual acknowledgment. Confirm that all four members share repository access and that the instructor can open the submitted URL. This document becomes the adopted team plan after those confirmations.

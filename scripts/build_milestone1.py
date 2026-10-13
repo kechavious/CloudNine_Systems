@@ -1,5 +1,5 @@
 from pathlib import Path
-import json, re, html, subprocess
+import re, html, subprocess
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -84,7 +84,7 @@ for name,fs in schema.items():
   assert not f['fk'] or f['fk'] in schema,(name,f)
   assert not (f['pk'] and f['nullable'])
 N=len(schema)
-(DOC/'Group4_Schema.json').write_text(json.dumps(dict(modules=modules,tables=schema),indent=2)+'\n')
+
 lines=['erDiagram','    direction LR']
 for name,fs in schema.items():
  for f in fs:
@@ -99,18 +99,6 @@ for name,fs in schema.items():
   lines.append(f'        {f["type"]} {f["name"]}'+(' '+flags if flags else '')+(' "nullable"' if f['nullable'] else ''))
  lines.append('    }')
 (DOC/'Group4_ERD.mmd').write_text('\n'.join(lines)+'\n')
-dictlines=['# Group 4 - Data dictionary',f'Canonical Milestone 1 schema: {N} tables. PK = primary key; FK = foreign key; UK = additional unique key. All fields required unless marked Yes. All money is USD; decimal amounts use fixed precision. Timestamps are UTC.\n']
-for module,names in modules.items():
- dictlines.append('## '+module)
- for name in names:
-  dictlines.extend(['### '+name,'| Column | Type | Key / reference | Nullable |','|---|---|---|---|'])
-  for f in schema[name]:
-   flags=[]
-   if f['pk']: flags.append('PK')
-   if f['unique']: flags.append('UK')
-   if f['fk']: flags.append('FK -> '+f['fk'])
-   dictlines.append(f'| {f["name"]} | {f["type"]} | {"; ".join(flags)} | {"Yes" if f["nullable"] else "No"} |')
-(DOC/'Group4_Data_Dictionary.md').write_text('\n'.join(dictlines)+'\n')
 # Render module diagrams with real entity fields, FK relationships, and multiplicities.
 for i,(module,names) in enumerate(modules.items(),1):
  external=sorted({f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names})
@@ -149,25 +137,51 @@ def pdf_text(md,path):
   line=html.escape(line)
   line=re.sub(r'\*\*(.*?)\*\*',r'<b>\1</b>',line)
   story.append(Paragraph(line,styles[style]))
- SimpleDocTemplate(str(path),pagesize=letter,allowSplitting=0,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
+ grouped=[]
+ i=0
+ while i<len(story):
+  if story[i].style.name=='SubCustom' and i+1<len(story):
+   grouped.append(KeepTogether([story[i],story[i+1]]));i+=2
+  else: grouped.append(story[i]);i+=1
+ story=grouped
+ SimpleDocTemplate(str(path),pagesize=letter,allowSplitting=1,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
 # ERD: cover + detailed vector module pages. Page dimensions preserve legibility.
 c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),pagesize=letter)
 c.setTitle('Group 4 - CloudNine Systems - 3NF ERD')
 c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',26);c.drawString(48,710,'CloudNine Systems');c.setFont('Helvetica-Bold',18);c.drawString(48,680,'Group 4 | Milestone 1 ERD')
-intro=[f'{N} tables organized into {len(modules)} connected modules.','Logical relational design in Third Normal Form (3NF).','Each module page shows all owned attributes and incoming FK relationships.','Gray entities are references to tables fully defined on another module page.','Relationship ends: 1 = required parent; 0..1 = optional parent;','0..* = zero or more children; 0..1 child = unique foreign key.','PK = primary key; FK = foreign key; UK = additional unique key.','? means nullable. Composite PKs are marked on every participating column.','Minimum child counts are enforced by lifecycle rules, not by ordinary FKs.','XOR, time interval, capacity and accounting rules appear in the analysis report.','All monetary values are USD. All timestamps are UTC.','The editable Mermaid and JSON sources accompany this PDF.']
+intro=[f'{N} tables organized into {len(modules)} connected modules.','Logical relational design in Third Normal Form (3NF).','Each module page shows all owned attributes and incoming FK relationships.','Gray entities are references to tables fully defined on another module page.','Relationship ends: 1 = required parent; 0..1 = optional parent;','0..* = zero or more children; 0..1 child = unique foreign key.','PK = primary key; FK = foreign key; UK = additional unique key.','? means nullable. Composite PKs are marked on every participating column.','Minimum child counts are enforced by lifecycle rules, not by ordinary FKs.','XOR, time interval, capacity and accounting rules appear in the analysis report.','All monetary values are USD. All timestamps are UTC.','The editable Mermaid and generation script accompany this PDF.']
 y=640
 for line in intro:
  c.setFont('Helvetica',10);c.drawString(48,y,line);y-=21
 for i,module in enumerate(modules,1):
- c.setFont('Helvetica',11);c.drawString(48,y,f'{i+1}. {module}');y-=22
+ c.setFont('Helvetica',11);c.drawString(48,y,f'{i+2}. {module}');y-=22
 c.setFont('Helvetica',8);c.drawString(48,30,'GROUP 4 | DESIGN DRAFT | Team roster and adoption pending');c.showPage()
+# Compact conceptual overview: detailed FK relationships remain on module pages.
+c.setPageSize((792,612))
+c.setFillColor(colors.HexColor('#16324f')); c.setFont('Helvetica-Bold',22)
+c.drawString(36,570,'Core workflow overview')
+c.setFont('Helvetica',11); c.drawString(36,548,'Read this first; detailed entities, keys and cardinalities follow on the module pages.')
+boxes=[(40,420,'CLIENT','Who requests the work?'),(285,420,'RESERVATION','What capacity is requested?'),(530,420,'DEPLOYMENT','What work is running?'),(530,290,'RESOURCE_ALLOCATION','Which configurations are assigned?'),(285,290,'USAGE_RECORD','What was consumed?'),(40,290,'CHARGE','What does it cost?'),(40,160,'CHARGE_SHARE','Which account pays each share?'),(285,160,'INVOICE','What is billed to that account?')]
+for x,y,title,subtitle in boxes:
+ c.setFillColor(colors.HexColor('#edf3f8')); c.setStrokeColor(colors.HexColor('#16324f')); c.roundRect(x,y,220,72,8,fill=1,stroke=1)
+ c.setFillColor(colors.HexColor('#16324f')); c.setFont('Helvetica-Bold',11);c.drawString(x+10,y+45,title)
+ c.setFont('Helvetica',9);c.drawString(x+10,y+23,subtitle)
+def arrow(x1,y1,x2,y2):
+ c.setStrokeColor(colors.HexColor('#64748b')); c.setLineWidth(1.4);c.line(x1,y1,x2,y2)
+ import math
+ angle=math.atan2(y2-y1,x2-x1)
+ for delta in (-0.45,0.45): c.line(x2,y2,x2-8*math.cos(angle+delta),y2-8*math.sin(angle+delta))
+for coords in [(260,456,285,456),(505,456,530,456),(640,420,640,362),(530,326,505,326),(285,326,260,326),(150,290,150,232),(260,196,285,196)]: arrow(*coords)
+c.setFont('Helvetica',10); c.drawString(40,108,'Conceptual flow only: intermediate service, pricing and invoice-line tables are omitted here.')
+c.drawString(40,89,'The following six module pages define the full 30-table logical model and FK multiplicities.')
+c.setFont('Helvetica',9); c.drawString(36,22,'Group 4 | CloudNine Systems | ERD page 2 of 8'); c.showPage()
 for i,module in enumerate(modules,1):
  d=svg2rlg(str(TMP/f'module{i}.svg'))
  w=max(792,d.width+72);h=max(612,d.height+120)
  c.setPageSize((w,h));c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',20);c.drawString(36,h-35,f'{i}. {module}')
  c.setFont('Helvetica',10);c.drawString(36,h-55,'PK / FK / UK | ? nullable | Gray = external reference | Edge labels give multiplicity at each end')
  renderPDF.draw(d,c,(w-d.width)/2,45)
- c.setFont('Helvetica',9);c.drawString(36,22,f'Group 4 | CloudNine Systems | ERD page {i+1} of {len(modules)+1}');c.showPage()
+ c.setFont('Helvetica',9);c.drawString(36,22,f'Group 4 | CloudNine Systems | ERD page {i+2} of {len(modules)+2}');c.showPage()
 c.save()
 report=(DOC/'Group4_Analysis_Draft.md').read_text()
 team=(DOC/'Group4_Team_Statement.md').read_text()
