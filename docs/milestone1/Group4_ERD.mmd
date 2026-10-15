@@ -1,9 +1,7 @@
 erDiagram
     direction LR
     client o|--o{ client : has child client
-    client ||--o{ client_membership : has
-    user_account ||--o{ client_membership : has membership
-    client ||--o{ project : has
+    client o|--o{ user_account : has
     region ||--o{ availability_zone : contains
     availability_zone ||--o{ data_center : contains
     resource_type ||--o{ resource : classifies
@@ -18,7 +16,6 @@ erDiagram
     availability_zone o|--o{ reservation_item : is preferred by
     data_center o|--o{ reservation_item : is preferred by
     reservation ||--o{ deployment : has
-    project o|--o{ deployment : groups
     deployment ||--o{ resource_allocation : has
     reservation_item ||--o{ resource_allocation : is fulfilled by
     resource ||--o{ resource_allocation : has
@@ -38,10 +35,8 @@ erDiagram
     charge o|--o{ charge : has adjustment
     user_account o|--o{ charge : authorizes charge
     charge ||--o{ charge_share : is split into
-    billing_account ||--o{ charge_share : has
+    invoice ||--o{ charge_share : contains
     billing_account ||--o{ invoice : has
-    charge_share ||--o| invoice_line : appears on
-    invoice ||--o{ invoice_line : contains
     client {
         int clientId PK
         int parentClientId FK "nullable"
@@ -52,24 +47,12 @@ erDiagram
     }
     user_account {
         int userId PK
+        int clientId FK "nullable"
         text name
         text email
         text accountKind
         text staffRole "nullable"
         text status
-    }
-    client_membership {
-        int membershipId PK
-        int clientId FK
-        int userId FK
-        text role
-        timestamp validFrom
-        timestamp validTo "nullable"
-    }
-    project {
-        int projectId PK
-        int clientId FK
-        text name
     }
     region {
         int regionId PK
@@ -141,7 +124,6 @@ erDiagram
     deployment {
         int deploymentId PK
         int reservationId FK
-        int projectId FK "nullable"
         text name
         text workloadNote
         timestamp startedAt "nullable"
@@ -217,7 +199,7 @@ erDiagram
     charge_share {
         int chargeShareId PK
         int chargeId FK
-        int billingAccountId FK
+        int invoiceId FK
         decimal allocatedAmount
     }
     invoice {
@@ -226,8 +208,4 @@ erDiagram
         timestamp issuedAt
         timestamp dueAt
         text status
-    }
-    invoice_line {
-        int chargeShareId PK, FK
-        int invoiceId FK
     }

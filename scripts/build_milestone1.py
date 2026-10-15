@@ -15,11 +15,8 @@ for p in (DOC,OUT,TMP): p.mkdir(parents=True,exist_ok=True)
 # field:type; arrows identify the referenced PK; ? means nullable.
 raw={'Clients and people': {'client': 'clientId:int '
                                   'PK;parentClientId:int->client?;name:text;clientType:text;contactEmail:text;qualificationNote:text?',
-                        'user_account': 'userId:int PK;name:text;email:text '
-                                        ';accountKind:text;staffRole:text?;status:text',
-                        'client_membership': 'membershipId:int '
-                                             'PK;clientId:int->client;userId:int->user_account;role:text;validFrom:timestamp;validTo:timestamp?',
-                        'project': 'projectId:int PK;clientId:int->client;name:text'},
+                        'user_account': 'userId:int PK;clientId:int->client?;name:text;email:text '
+                                        ';accountKind:text;staffRole:text?;status:text'},
  'Infrastructure and availability': {'region': 'regionId:int PK;name:text;regulatoryNote:text',
                                      'availability_zone': 'zoneId:int '
                                                           'PK;regionId:int->region;name:text;redundancyNote:text;connectivityNote:text',
@@ -36,7 +33,7 @@ raw={'Clients and people': {'client': 'clientId:int '
                                'reservation_item': 'reservationItemId:int '
                                                    'PK;reservationId:int->reservation;resourceTypeId:int->resource_type;quantity:int;minVcpu:int;minMemoryGib:decimal;minStorageGib:decimal;minNetworkGbps:decimal;preferredRegionId:int->region?;preferredZoneId:int->availability_zone?;preferredDataCenterId:int->data_center?;locationMode:text'},
  'Deployments and assignments': {'deployment': 'deploymentId:int '
-                                               'PK;reservationId:int->reservation;projectId:int->project?;name:text;workloadNote:text;startedAt:timestamp?;endedAt:timestamp?;confidentialityLevel:text;status:text;priority:int;scalingMode:text',
+                                               'PK;reservationId:int->reservation;name:text;workloadNote:text;startedAt:timestamp?;endedAt:timestamp?;confidentialityLevel:text;status:text;priority:int;scalingMode:text',
                                  'resource_allocation': 'allocationId:int '
                                                         'PK;deploymentId:int->deployment;reservationItemId:int->reservation_item;resourceId:int->resource;capacityFraction:decimal;startsAt:timestamp;endsAt:timestamp?;allocationStatus:text;supersedesAllocationId:int->resource_allocation?;changeReason:text;assignedByUserId:int->user_account?',
                                  'deployment_service': 'deploymentServiceId:int '
@@ -52,10 +49,9 @@ raw={'Clients and people': {'client': 'clientId:int '
                           'charge': 'chargeId:int PK;usageId:int->usage_record '
                                     '?;deploymentServiceId:int->deployment_service?;serviceRateId:int->service_rate?;adjustmentOfChargeId:int->charge?;authorizedByUserId:int->user_account?;chargeType:text;amount:decimal;status:text;reason:text;createdAt:timestamp',
                           'charge_share': 'chargeShareId:int '
-                                          'PK;chargeId:int->charge;billingAccountId:int->billing_account;allocatedAmount:decimal',
+                                          'PK;chargeId:int->charge;invoiceId:int->invoice;allocatedAmount:decimal',
                           'invoice': 'invoiceId:int '
-                                     'PK;billingAccountId:int->billing_account;issuedAt:timestamp;dueAt:timestamp;status:text',
-                          'invoice_line': 'chargeShareId:int PK->charge_share;invoiceId:int->invoice'}}
+                                     'PK;billingAccountId:int->billing_account;issuedAt:timestamp;dueAt:timestamp;status:text'}}
 # Additional identity rules are documented in analysis R9, not drawn as key markers.
 unique_attributes={('user_account','email'),('region','name'),('resource_type','name'),
                    ('service','name'),('usage_record','supersedesUsageId'),('charge','usageId')}
@@ -78,7 +74,7 @@ N=len(schema)
 # Portable field inventory for external diagram authoring (no alternate-key markers).
 import csv
 with (DOC/'Group4_ERD_Fields.csv').open('w',newline='') as inventory:
- writer=csv.writer(inventory)
+ writer=csv.writer(inventory,lineterminator='\n')
  writer.writerow(['table','attribute','type','key','nullable','referencesTable','referencesAttribute'])
  for name,fs in schema.items():
   for f in fs:
@@ -98,10 +94,10 @@ def relationship_label(field):
   'preferredDataCenterId':'is preferred by',
  }
  if name in special: return special[name]
- return {'client':'has', 'user_account':'has membership', 'region':'contains',
+ return {'client':'has', 'user_account':'acts for', 'region':'contains',
   'availability_zone':'contains', 'data_center':'hosts', 'resource_type':'classifies',
   'resource':'has', 'reservation':'has', 'reservation_item':'is fulfilled by',
-  'project':'groups', 'deployment':'has', 'resource_allocation':'supports',
+  'deployment':'has', 'resource_allocation':'supports',
   'service':'has', 'service_rate':'prices', 'deployment_service':'generates',
   'usage_record':'produces', 'charge':'is split into', 'billing_account':'has',
   'charge_share':'appears on', 'invoice':'contains'}[field['fk']]
@@ -122,10 +118,10 @@ for name,fs in schema.items():
 (DOC/'Group4_ERD.mmd').write_text('\n'.join(lines)+'\n')
 # Views follow the same A-D ownership as the Team Statement.
 views={
- 'A': ('Clients and reservations', ['client','user_account','client_membership','project','reservation','reservation_item']),
- 'B': ('Infrastructure and availability', ['region','availability_zone','data_center','resource_type','resource','resource_state']),
- 'C': ('Deployments and services', ['deployment','resource_allocation','deployment_service','service','service_rate']),
- 'D': ('Metering and billing', ['usage_record','billing_account','charge','charge_share','invoice','invoice_line']),
+ 'A': ('Clients and reservations', ['client','user_account','reservation','reservation_item','billing_account']),
+ 'B': ('Infrastructure', ['region','availability_zone','data_center','resource_type','resource']),
+ 'C': ('Deployments and usage', ['deployment','resource_allocation','resource_state','deployment_service','usage_record']),
+ 'D': ('Services and billing', ['service','service_rate','charge','charge_share','invoice']),
 }
 owner={name:member for member,(_,names) in views.items() for name in names}
 assert set(owner)==set(schema) and sum(len(v[1]) for v in views.values())==N
@@ -133,11 +129,14 @@ def endpoints(name,f):
  return ('0..1' if f['nullable'] else '1', '0..1' if f['unique'] or (f['pk'] and sum(x['pk'] for x in schema[name])==1) else '0..*')
 def graph(names,overview=False):
  external=[] if overview else sorted({f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names})
+ aliases={'state_actor_ref':'user_account','state_resource_ref':'resource'} if 'resource_state' in names else {}
+ external+=list(aliases)
  dot=['digraph G {','graph [rankdir=TB, bgcolor="white", nodesep=0.8, ranksep=1.15, splines=polyline, pad=0.25, outputorder=edgesfirst];','node [shape=plain, fontname="Helvetica"];','edge [fontname="Helvetica", fontsize=11, color="#333333", arrowsize=0.6, labeldistance=2.0];']
  for name in names+external:
-  ext=name in external; fs=[f for f in schema[name] if f['pk']] if ext else schema[name]
+  ext=name in external; canonical=aliases.get(name,name)
+  fs=[f for f in schema[canonical] if f['pk']] if ext else schema[canonical]
   color='#e9e9e9' if ext else '#ffffff'
-  label=name+(' (ref)' if ext else '')
+  label=canonical+(' (ref)' if ext else '')
   rows=[f'<TR><TD COLSPAN="3" BGCOLOR="{color}"><FONT COLOR="black" POINT-SIZE="13"><B>{label}</B></FONT></TD></TR>']
   for field in fs:
    key='/'.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk']))] if b)
@@ -151,15 +150,13 @@ def graph(names,overview=False):
    targetpk=next(x['name'] for x in schema[target] if x['pk'])
    destination=name
    source=target
+   if name=='resource_state':
+    source='state_actor_ref' if target=='user_account' else 'state_resource_ref'
    if target==name and name=='client':
     source=target+':n';destination=name+':n'
-   if not overview and name=='client_membership':
-    destination=name+(':e' if target=='user_account' else ':w')
    attrs=f'label="{relationship_label(field)}",dir=none,taillabel="{parent}",headlabel="{child}",style="{"dashed" if target in external else "solid"}"'
 
    dot.append(f'{source} -> {destination} [{attrs}];')
- if not overview and 'client_membership' in names:
-  dot.append('user_account -> client [style=invis, weight=20];')
  dot.append('}')
  return '\n'.join(dot)
 for member,(_,names) in views.items():
@@ -170,14 +167,14 @@ subprocess.run(['/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime
 for member,(_,names) in views.items():
  external={f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names}
  svg=(TMP/f'owner_{member}.svg').read_text()
- assert svg.count('class="node"')==len(names)+len(external),member
+ assert svg.count('class="node"')==len(names)+len(external)+(2 if 'resource_state' in names else 0),member
  assert svg.count('class="edge"')==sum(bool(f['fk']) for name in names for f in schema[name]),member
 svgout=ROOT/'output/svg';svgout.mkdir(parents=True,exist_ok=True)
 # Compose the four final diagrams into a readable two-by-two overview.
 ET.register_namespace('', 'http://www.w3.org/2000/svg')
 overview=ET.Element('{http://www.w3.org/2000/svg}svg',width='1800',height='2500',viewBox='0 0 1800 2500')
 title=ET.SubElement(overview,'{http://www.w3.org/2000/svg}title')
-title.text='CloudNine Systems - four ERD domains, 23 tables'
+title.text='CloudNine Systems - four ERD domains, 20 tables'
 for i,(member,(title,names)) in enumerate(views.items()):
  x=30+(i%2)*900;y=55+(i//2)*1240
  heading=ET.SubElement(overview,'{http://www.w3.org/2000/svg}text',x=str(x),y=str(y),attrib={'font-family':'Helvetica, Arial, sans-serif','font-size':'22','font-weight':'bold'})
@@ -191,7 +188,7 @@ for i,(member,(title,names)) in enumerate(views.items()):
 (svgout/'Group4_ERD_Overview.svg').write_text(ET.tostring(overview,encoding='unicode')+'\n')
 # Editable owner views render directly on GitHub; each repeats only necessary
 # external keys. The .mmd file remains the full schema with all FK relationships.
-parts=['# Group 4 - ERD ownership views','23 tables; one primary owner per table. Names will be mapped to A-D later.', '![All 23 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
+parts=['# Group 4 - ERD ownership views',f'{N} tables; five tables per owner. Names will be mapped to A-D later.', '![All 20 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
 for member,(title,names) in views.items():
  parts += [f'## Member {member}: {title}',f'{len(names)} owned tables. Shaded boxes show primary keys of entities owned by another member.',f'![Member {member} ERD](../../output/svg/Group4_ERD_{member}.svg)','', '<details>', '<summary>Editable Mermaid source</summary>', '', '```mermaid','erDiagram','    direction LR']
  external=sorted({x['fk'] for name in names for x in schema[name] if x['fk'] and x['fk'] not in names})
@@ -212,7 +209,7 @@ for member,(title,names) in views.items():
  parts += ['```','</details>','']
 (DOC/'Group4_ERD_Views.md').write_text('\n'.join(parts).rstrip()+'\n')
 styles=getSampleStyleSheet()
-styles.add(ParagraphStyle(name='BodyCustom',fontName='Helvetica',fontSize=10,leading=13,spaceAfter=7,textColor=colors.black))
+styles.add(ParagraphStyle(name='BodyCustom',fontName='Helvetica',fontSize=10,leading=13,spaceAfter=7,allowWidows=0,allowOrphans=0,textColor=colors.black))
 styles.add(ParagraphStyle(name='TitleCustom',fontName='Helvetica-Bold',fontSize=23,leading=28,spaceAfter=16,textColor=colors.black))
 styles.add(ParagraphStyle(name='SubCustom',fontName='Helvetica-Bold',fontSize=13,leading=17,spaceBefore=14,spaceAfter=7,textColor=colors.black))
 def footer(c,d):
@@ -254,9 +251,9 @@ for page,(file,title,subtitle) in enumerate(pages,1):
  'Uniqueness, time intervals, allocation limits and billing rules: analysis report R1-R9.']
  domain_notes={
   'owner_A':['A client has at most one parent; client hierarchy cycles are prohibited.', 'An item selects at most one preferred location level; approved reservations must contain items.'],
-  'owner_B':['Each data center belongs to one zone, and each zone belongs to one region.', 'Resource-state intervals for the same resource cannot overlap; resource capacities are scalar.'],
-  'owner_C':['Allocations must match the reservation item and deployment; overlapping fractions total at most one.', 'Replacement allocations retain the predecessor; rates for the same service cannot overlap.'],
-  'owner_D':['Each charge has exactly one context: usage, direct service, or adjustment of an earlier charge.', 'Final payer shares sum to the charge; an invoiced share belongs to the invoice account and is billed once.'],
+  'owner_B':['Each data center belongs to one zone, and each zone belongs to one region.', 'Resources store capacity; occupancy is derived from allocations, not duplicated as a status.'],
+  'owner_C':['Allocations must match the reservation item and deployment; overlapping fractions total at most one.', 'Replacement and state intervals retain history; actual usage and estimates are reported separately.'],
+  'owner_D':['Each charge has exactly one context: usage, direct service, or adjustment of an earlier charge.', 'Shares belong to draft invoices; the payer is derived from the invoice. Issued invoices are immutable.'],
  }
  notes+=domain_notes[file]
  for i,note in enumerate(notes):c.setFont('Helvetica',10);c.drawString(50,111-i*15,note)

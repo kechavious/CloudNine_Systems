@@ -1,69 +1,68 @@
 # Group 4 - CloudNine Systems
 
-Milestone 1: a proposed 23-table, 3NF logical design for a cloud infrastructure information system.
+A 20-table database design for a cloud infrastructure information system, organized around a practical two-page Operations and Billing website. This repository currently contains the Milestone 1 design and implementation plan; the database, sample data, SQL queries and website are later work.
 
-## Submission documents
+## Current documents
 
-1. [ERD PDF](output/pdf/Group4_ERD.pdf): four domain diagrams covering all 23 tables in an assignment-style table-and-relationship layout. Every attribute and foreign key is shown, with labelled relationships and explicit cardinalities. Only PK/FK markers appear; uniqueness rules are documented in analysis R9.
-2. [Draft analysis report](output/pdf/Group4_Analysis_Draft.pdf): scenario, organizational schema, design decisions, assumptions, 3NF rationale and scope limitations.
-3. [Team statement](output/pdf/Group4_Team_Statement.pdf): proposed four-person division of work, accountability, support and workload balancing.
+- [ERD PDF](output/pdf/Group4_ERD.pdf): four domain diagrams, five owned tables each; complete attributes, PK/FK markers, named relationships and cardinalities.
+- [Draft analysis PDF](output/pdf/Group4_Analysis_Draft.pdf): scope, simplifications, 3NF reasoning, integrity rules and scenario coverage.
+- [Team statement PDF](output/pdf/Group4_Team_Statement.pdf): five tables per member, query/page responsibilities and review duties.
+- [Website and query plan](docs/milestone1/Group4_Website_Plan.md): two pages, eight meaningful queries, data requirements and build sequence.
 
-Submit this repository URL: https://github.com/kechavious/CloudNine_Systems
+Repository URL for submission: https://github.com/kechavious/CloudNine_Systems
 
-## Milestone 1 requirements
+## What the website will demonstrate
 
-| Assignment requirement | Location |
-|---|---|
-| ERD as a PDF, normalized to 3NF | ERD PDF; normalization reasoning and integrity assumptions in analysis sections 3-4 |
-| Draft analysis of the scenario, organizational schema and assumptions | Analysis report sections 1-5 |
-| Team understanding, equitable division, accountability and mutual support | Team Statement; member confirmation is pending |
-| GitHub repository shared by all team members | This repository; all four members must confirm access before submission |
+**Operations:** capacity by region/zone/data center, utilization by resource type, reservation shortages, downtime and resource substitutions.
 
-This submission is design-only. Database implementation, sample data, queries and web pages are planned for later milestones. The PDF generator is a documentation tool, not an implemented cloud management application. The team statement is a proposed plan until the members confirm it.
+**Billing:** estimated versus actual consumption, client charges and credits, payer splits and invoice totals.
 
-## Core scope
+Location tables support filters, joins and capacity comparisons; they do not require separate website pages. Data is synthetic. The demonstration does not need real servers, provisioning, live monitoring, authentication or twenty CRUD screens.
 
-The model keeps requests, resource allocations, usage, direct cost sharing and invoices. Reservation revisions, resource dependency/configuration-history tables, deployment event logs and automatic sharing rules have been removed. The analysis report explains these tradeoffs. This version supersedes earlier designs, which remain available in Git history.
+## Twenty-table core and ownership
 
-## ERD work packages
+| Owner | Five tables | Main implementation responsibility | Reviewed by |
+|---|---|---|---|
+| A | client, user_account, reservation, reservation_item, billing_account | Clients, requests, payer contacts; Q3 and reservation sections | B |
+| B | region, availability_zone, data_center, resource_type, resource | Infrastructure; Q1-Q2 and Operations location/capacity sections | C |
+| C | deployment, resource_allocation, resource_state, deployment_service, usage_record | Assignment, availability and metering; Q4-Q5 and Q6 with D | D |
+| D | service, service_rate, charge, charge_share, invoice | Rates, charges, draft invoices and splits; Q7-Q8, Q6 display, Billing page | A |
 
-| Owner | Tables | Primary area | Reviewed by |
-|---|---:|---|---|
-| Member A | 6 | Clients and reservations | Member B |
-| Member B | 6 | Infrastructure and availability | Member C |
-| Member C | 5 | Deployments and services | Member D |
-| Member D | 6 | Metering and billing | Member A |
+Table counts are balanced, and documentation/integration tasks offset the heavier temporal and billing logic. A assembles the report, B integrates the schema/shared layout, C coordinates generated documents, and D coordinates submission checks. Names and member acceptance are pending.
 
-A-D work packages match the PDF and [ownership diagrams](docs/milestone1/Group4_ERD_Views.md). Each diagram uses consistent table boxes with separate key, attribute and type columns. Names will be supplied later; each member must acknowledge their assignment.
+## Simplification decisions
 
-## Before submission
+The previous 23-table version is reduced to 20:
 
-Add English names and map the four members to the assigned A-D work packages. Owners, review duties and document responsibilities are specified in the Team Statement; obtain member acknowledgment of the plan. Ensure all four members have repository access and the instructor can open the URL. Review the final PDFs together. Pending confirmations are not represented as completed.
+- Remove `project`: group named deployments by client and reservation.
+- Remove `client_membership`: a user has at most one current client through `user_account.clientId`; many-to-many affiliation and affiliation history are outside scope.
+- Remove `invoice_line`: `charge_share` itself is the invoice line and references `invoice`; derive its payer from the invoice instead of duplicating billingAccountId. Create a draft invoice before allocating shares.
 
-## Editable sources
+Keep `region`, `availability_zone` and `data_center`: the scenario distinguishes these locations, reservation restrictions can target them, and the website compares their capacity. Keep allocation/state/rate/usage history because it supports meaningful queries. Detailed tradeoffs and deferred scenario features are in analysis sections 3-5.
 
-- [Analysis report](docs/milestone1/Group4_Analysis_Draft.md)
-- [Team statement](docs/milestone1/Group4_Team_Statement.md)
+The 20-table count meets the assignment's table threshold for A-level consideration; it does not guarantee a grade. Normalization, realistic activity, correct queries, interpretation and the final interface still matter.
+
+## Editable sources and diagrams
+
+- [Analysis source](docs/milestone1/Group4_Analysis_Draft.md)
+- [Team statement source](docs/milestone1/Group4_Team_Statement.md)
 - [Four-domain overview](output/svg/Group4_ERD_Overview.svg)
-- Individual diagrams: [A](output/svg/Group4_ERD_A.svg), [B](output/svg/Group4_ERD_B.svg), [C](output/svg/Group4_ERD_C.svg), [D](output/svg/Group4_ERD_D.svg)
-- [Four ERD ownership views](docs/milestone1/Group4_ERD_Views.md): the same SVG diagrams used by the PDF, with editable Mermaid sources.
-- [Full Mermaid ERD](docs/milestone1/Group4_ERD.mmd)
-- [PDF and ERD generator](scripts/build_milestone1.py): canonical table definitions are maintained here.
+- Individual SVG diagrams: [A](output/svg/Group4_ERD_A.svg), [B](output/svg/Group4_ERD_B.svg), [C](output/svg/Group4_ERD_C.svg), [D](output/svg/Group4_ERD_D.svg)
+- [Domain views and editable Mermaid](docs/milestone1/Group4_ERD_Views.md)
+- [Full Mermaid source](docs/milestone1/Group4_ERD.mmd)
+- [Field inventory](docs/milestone1/Group4_ERD_Fields.csv)
+- [Generator and canonical table definitions](scripts/build_milestone1.py)
 
-The course [project requirements](Group%20Project%20-%20DB.pdf) and [CloudNine scenario](Group%20Project_%20CloudNine%20Systems.pdf) are retained as references. Database implementation, exports, queries and the web interface belong to later milestones.
+The diagrams follow the supplied Assignment 3 example's restrained table-and-relationship layout: singular lower_case table names, camelCase attributes, headings and clear PK/FK markers. Additional uniqueness rules belong in analysis R9. Shaded reference boxes repeat existing entities rather than adding tables. GitHub views and the PDF use the same SVGs; the overview combines those four diagrams.
 
-## Regenerate
+## Regeneration and checks
 
-Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Graphviz rendering uses Node.js and @viz-js/viz; the bundled runtime paths in the script may need adjustment on another computer. Edit the Markdown files for report text, and the generator for schema changes. Temporary render files are ignored by Git.
+Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Graphviz rendering uses Node.js and @viz-js/viz; the bundled runtime paths in the generator may need adjustment on another computer. Edit the generator for schema changes and Markdown sources for document text. All three PDFs, four diagram SVGs, the overview, Mermaid sources and CSV are regenerated together. PDF output is deterministic for unchanged source. Temporary renders are ignored by Git.
 
-## Assignment 3 formatting reference
+## Milestones and remaining work
 
-The supplied Assignment 3 requirements and GChau example guide presentation: singular lower_case table names, camelCase attributes, clear headings, PK/FK markers, labelled relationships, cardinalities and documented assumptions. CloudNine remains the project domain; the travel and DVD exercises are not additional project requirements. Unique business identifiers are described in analysis R9; the diagrams display only PK/FK markers.
+Milestone 1: ERD PDF, draft analysis and clear team planning. Later milestones: all 20 tables, meaningful synthetic activity over at least one quarter, eight aggregate/join queries, two read-only pages, database export, complete source and presentation. The [website plan](docs/milestone1/Group4_Website_Plan.md) specifies responsibilities and verification rules.
 
-The PDF contains four domain diagrams with complete attributes and labelled relationship cardinalities. It follows the supplied reference's simple table boxes and restrained black-and-white styling. Gray boxes repeat external entities by primary key; they do not represent additional tables.
+Before submission, add member names/GitHub accounts, obtain acceptance of assignments, confirm shared access and ensure the instructor can open the repository. Course deadline, meeting times and member acknowledgment remain pending; they are not claimed as completed.
 
-- [Field inventory CSV](docs/milestone1/Group4_ERD_Fields.csv)
-
-## Version consistency
-
-All three PDFs, four SVG diagrams, the combined overview, Mermaid sources and the field inventory are generated together. The overview reuses the four final domain diagrams. The reports and team work packages use the same 23 table names and 42 foreign-key relationships. Course reference PDFs are retained unchanged. Member names, access and acknowledgment remain pending until the team supplies them.
+The original [project requirements](Group%20Project%20-%20DB.pdf) and [CloudNine scenario](Group%20Project_%20CloudNine%20Systems.pdf) are retained unchanged. Earlier designs remain in Git history.
