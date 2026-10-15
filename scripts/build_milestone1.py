@@ -7,6 +7,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.graphics import renderPDF
+from svglib.svglib import svg2rlg
 ROOT=Path(__file__).resolve().parents[1]
 DOC=ROOT/'docs/milestone1'; OUT=ROOT/'output/pdf'; TMP=ROOT/'tmp/pdfs'
 for p in (DOC,OUT,TMP): p.mkdir(parents=True,exist_ok=True)
@@ -136,30 +137,33 @@ def endpoints(name,f):
  return ('0..1' if f['nullable'] else '1', '0..1' if f['unique'] or (f['pk'] and sum(x['pk'] for x in schema[name])==1) else '0..*')
 def graph(names,overview=False):
  external=[] if overview else sorted({f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names})
- dot=['digraph G {','graph [rankdir=LR, bgcolor="white", nodesep=0.55, ranksep=0.9, splines=spline, pad=0.25, outputorder=edgesfirst];','node [shape=plain, fontname="Helvetica"];','edge [fontname="Helvetica", fontsize=9, color="#61738b", arrowsize=0.6, labeldistance=2.2];']
+ dot=['digraph G {','graph [rankdir=TB, bgcolor="white", nodesep=0.8, ranksep=1.15, splines=polyline, pad=0.25, outputorder=edgesfirst];','node [shape=plain, fontname="Helvetica"];','edge [fontname="Helvetica", fontsize=11, color="#333333", arrowsize=0.6, labeldistance=2.0];']
  for name in names+external:
-  ext=name in external; fs=[f for f in schema[name] if f['pk']] if ext or overview else schema[name]
-  color='#718096' if ext else palette[owner[name]]
-  label=f'{owner[name]} / {name}'+(' (reference)' if ext else '')
-  rows=[f'<TR><TD COLSPAN="2" BGCOLOR="{color}"><FONT COLOR="white" POINT-SIZE="11"><B>{label}</B></FONT></TD></TR>']
+  ext=name in external; fs=[f for f in schema[name] if f['pk']] if ext else schema[name]
+  color='#e9e9e9' if ext else '#ffffff'
+  label=name+(' (ref)' if ext else '')
+  rows=[f'<TR><TD COLSPAN="3" BGCOLOR="{color}"><FONT COLOR="black" POINT-SIZE="13"><B>{label}</B></FONT></TD></TR>']
   for field in fs:
    key='/'.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk']))] if b)
-   rows.append(f'<TR><TD PORT="{field["name"]}" ALIGN="LEFT"><FONT POINT-SIZE="10">{key or "&#160;"}</FONT></TD><TD ALIGN="LEFT"><FONT POINT-SIZE="10">{field["name"]}: {field["type"]}{" ?" if field["nullable"] else ""}</FONT></TD></TR>')
-  dot.append(f'{name} [label=<<TABLE BORDER="1" COLOR="#c6d0dc" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">'+''.join(rows)+'</TABLE>>];')
+   rows.append(f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="11">{key or "&#160;"}</FONT></TD><TD PORT="{field["name"]}" ALIGN="LEFT"><FONT POINT-SIZE="11">{field["name"]}</FONT></TD><TD ALIGN="LEFT"><FONT POINT-SIZE="11">{field["type"]}{" ?" if field["nullable"] else ""}</FONT></TD></TR>')
+  dot.append(f'{name} [label=<<TABLE BORDER="1" COLOR="#333333" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">'+''.join(rows)+'</TABLE>>];')
  for name in names:
   for field in schema[name]:
    target=field['fk']
    if not target: continue
-   # The overview is an entity inventory; all relationships are in detail views.
-   if overview:
-    continue
    parent,child=endpoints(name,field)
    targetpk=next(x['name'] for x in schema[target] if x['pk'])
-   destination=name if overview else name+':'+field['name']+':w'
+   destination=name
    source=target
-   attrs=f'dir=none,taillabel="{parent}",headlabel="{child}",style="{"dashed" if target in external else "solid"}"'
-   if overview: attrs+=f',color="{palette[owner[name]]}88"'
+   if target==name and name=='client':
+    source=target+':n';destination=name+':n'
+   if not overview and name=='client_membership':
+    destination=name+(':e' if target=='user_account' else ':w')
+   attrs=f'label="{relationship_label(field)}",dir=none,taillabel="{parent}",headlabel="{child}",style="{"dashed" if target in external else "solid"}"'
+
    dot.append(f'{source} -> {destination} [{attrs}];')
+ if not overview and 'client_membership' in names:
+  dot.append('user_account -> client [style=invis, weight=20];')
  dot.append('}')
  return '\n'.join(dot)
 (TMP/'overview.dot').write_text(graph(list(schema),True))
@@ -178,7 +182,7 @@ svgout=ROOT/'output/svg';svgout.mkdir(parents=True,exist_ok=True)
 (svgout/'Group4_ERD_Overview.svg').write_text((TMP/'overview.svg').read_text())
 # Editable owner views render directly on GitHub; each repeats only necessary
 # external keys. The .mmd file remains the full schema with all FK relationships.
-parts=['# Group 4 - ERD ownership views','23 tables; one primary owner per table. Names will be mapped to A-D later.', '![All 23 entities, color-coded by owner](../../output/svg/Group4_ERD_Overview.svg)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
+parts=['# Group 4 - ERD ownership views','23 tables; one primary owner per table. Names will be mapped to A-D later.', '![All 23 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
 for member,(title,names) in views.items():
  parts += [f'## Member {member}: {title}',f'{len(names)} owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.','', '```mermaid','erDiagram','    direction LR']
  external=sorted({x['fk'] for name in names for x in schema[name] if x['fk'] and x['fk'] not in names})
@@ -222,69 +226,37 @@ def pdf_text(md,path):
   else: grouped.append(story[i]);i+=1
  story=grouped
  SimpleDocTemplate(str(path),pagesize=letter,allowSplitting=1,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
-# Crossing-free atlas: each FK has its own horizontal relationship lane.
-c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),pagesize=letter)
-c.setTitle('Group 4 - CloudNine Systems - ERD')
-total=N+1
-c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',24)
-c.drawString(40,742,'CloudNine Systems | ERD')
-c.setFont('Helvetica',11)
-intro=['23 tables in 3NF. Table names: singular lower_case; attributes: camelCase.',
- 'PK = primary key; FK = foreign key. No alternate-key markers are shown.',
- 'Each detail page lists every attribute and every outgoing foreign key.',
- 'Relationship lanes are independent: lines never cross.',
- 'Endpoint numbers give the number of records at that end per opposite record.',
- '1 = exactly one; 0..1 = zero or one; 0..* = zero or more.',
- 'Nullable attributes say "optional". All other attributes are required.',
- 'Uniqueness and other business rules: analysis report, section 4 (R1-R9).',
- 'Tool: generated PDF; not a Lucidchart-authored submission.',
- 'Assignment 3 is a formatting reference; the domain remains CloudNine.']
-for i,t in enumerate(intro):c.drawString(40,710-i*20,t)
-for index,(member,(title,names)) in enumerate(views.items()):
- x=40+(index%2)*280;y=478-(index//2)*190
- c.setFillColor(colors.HexColor(palette[member]));c.setFont('Helvetica-Bold',12)
- c.drawString(x,y,f'Member {member}')
- c.setFont('Helvetica',10);c.drawString(x,y-16,title);y-=16;y-=22
- c.setFillColor(colors.HexColor('#243247'));c.setFont('Helvetica',10)
- for name in names:
-  c.drawString(x+4,y,f'{name}  -  page {list(schema).index(name)+2}');y-=17
- y-=12
-c.setFont('Helvetica',8);c.drawString(40,24,f'Group 4 | Entity index | 1 / {total}')
-c.showPage()
-for page,(name,fs) in enumerate(schema.items(),2):
- relations=[f for f in fs if f['fk']]
- w=1200;h=max(800,130+len(relations)*105,150+len(fs)*30)
- c.setPageSize((w,h));c.setFillColor(colors.HexColor(palette[owner[name]]))
- c.setFont('Helvetica-Bold',24);c.drawString(40,h-42,f'{name} | Member {owner[name]}')
- c.setFont('Helvetica',11);c.drawString(40,h-66,'Attributes and labelled relationships | One independent lane per foreign key')
- c.setFont('Helvetica-Bold',12);c.drawString(40,h-101,'Key');c.drawString(95,h-101,'Attribute');c.drawString(320,h-101,'Type / optionality')
- for i,f in enumerate(fs):
-  y=h-131-i*30
-  c.setFillColor(colors.HexColor('#f1f5f9') if i%2==0 else colors.white);c.rect(35,y-9,470,28,fill=1,stroke=0)
-  c.setFillColor(colors.HexColor('#243247'));c.setFont('Helvetica-Bold' if f['pk'] else 'Helvetica',11)
-  key='/'.join(k for k,b in [('PK',f['pk']),('FK',bool(f['fk']))] if b)
-  c.drawString(40,y,key);c.drawString(95,y,f['name']);c.drawString(320,y,f['type']+(' (optional)' if f['nullable'] else ''))
- c.setFont('Helvetica-Bold',12);c.drawString(550,h-101,'Relationships (parent to child)')
- if not relations:
-  c.setFont('Helvetica',11);c.drawString(550,h-135,'No outgoing foreign keys; incoming links appear on child pages.')
- for i,f in enumerate(relations):
-  y=h-160-i*105;target=f['fk'];pk=next(x['name'] for x in schema[target] if x['pk'])
-  parent,child=endpoints(name,f)
-  c.setFillColor(colors.HexColor('#f1f5f9'));c.setStrokeColor(colors.HexColor('#c6d0dc'))
-  c.roundRect(550,y-20,220,48,4,fill=1,stroke=1);c.roundRect(955,y-20,220,48,4,fill=1,stroke=1)
-  c.setFillColor(colors.HexColor('#243247'));c.setFont('Helvetica-Bold',10)
-  c.drawString(560,y+10,target);c.drawString(965,y+10,name)
-  c.setFont('Helvetica',10);c.drawString(560,y-7,'PK '+pk);c.drawString(965,y-7,'FK '+f['name'])
-  c.setStrokeColor(colors.HexColor('#61738b'));c.line(770,y,955,y)
-  c.setFont('Helvetica-Bold',10);c.drawString(777,y-15,parent);c.drawRightString(948,y-15,child)
-  c.setFont('Helvetica',10);c.drawCentredString(862,y+12,relationship_label(f))
- c.setFillColor(colors.HexColor('#475569'));c.setFont('Helvetica',9)
- c.drawString(40,25,'Group 4 | 1 = exactly one | 0..1 = optional one | 0..* = zero or more | Assumptions: analysis R1-R9')
- c.drawRightString(w-40,25,f'{page} / {total}');c.showPage()
+# Assignment-style diagrams: four readable domain views.
+c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'))
+c.setTitle('Group 4 - CloudNine Systems - ER diagram')
+pages=[(f'owner_{member}',title+' - ER diagram',f'Member {member}: {len(names)} tables; shaded boxes reference another domain') for member,(title,names) in views.items()]
+for page,(file,title,subtitle) in enumerate(pages,1):
+ d=svg2rlg(str(TMP/f'{file}.svg'))
+ w=max(900,d.width+100);h=d.height+245
+ c.setPageSize((w,h));c.setFillColor(colors.black)
+ c.setFont('Helvetica-Bold',24);c.drawCentredString(w/2,h-38,title)
+ c.setFont('Helvetica',11);c.drawCentredString(w/2,h-59,subtitle)
+ renderPDF.draw(d,c,(w-d.width)/2,152)
+ c.setFont('Helvetica-Bold',11);c.drawString(50,128,'Assumptions and notation')
+ notes=['PK = primary key; FK = foreign key; ? = nullable. Unmarked attributes are required.',
+ 'Endpoint cardinalities: 1 = exactly one; 0..1 = zero or one; 0..* = zero or more.',
+ 'Each labelled line represents its child foreign key. Reference boxes repeat existing entities.',
+ 'Uniqueness, time intervals, allocation limits and billing rules: analysis report R1-R9.']
+ domain_notes={
+  'owner_A':['A client has at most one parent; client hierarchy cycles are prohibited.', 'An item selects at most one preferred location level; approved reservations must contain items.'],
+  'owner_B':['Each data center belongs to one zone, and each zone belongs to one region.', 'Resource-state intervals for the same resource cannot overlap; resource capacities are scalar.'],
+  'owner_C':['Allocations must match the reservation item and deployment; overlapping fractions total at most one.', 'Replacement allocations retain the predecessor; rates for the same service cannot overlap.'],
+  'owner_D':['Each charge has exactly one context: usage, direct service, or adjustment of an earlier charge.', 'Final payer shares sum to the charge; an invoiced share belongs to the invoice account and is billed once.'],
+ }
+ notes+=domain_notes[file]
+ for i,note in enumerate(notes):c.setFont('Helvetica',10);c.drawString(50,111-i*15,note)
+ c.setFont('Helvetica',9);c.drawRightString(w-50,20,f'Group 4 | {page} / {len(pages)}');c.showPage()
 c.save()
+for member in views:
+ (svgout/f'Group4_ERD_{member}.svg').write_text((TMP/f'owner_{member}.svg').read_text())
 report=(DOC/'Group4_Analysis_Draft.md').read_text()
 team=(DOC/'Group4_Team_Statement.md').read_text()
 (DOC/'Group4_Analysis_Draft.md').write_text(report)
 (DOC/'Group4_Team_Statement.md').write_text(team)
 pdf_text(report,OUT/'Group4_Analysis_Draft.pdf');pdf_text(team,OUT/'Group4_Team_Statement.pdf')
-print(f'Created {N}-table schema, four owner views, crossing-free ERD atlas, analysis and team statement.')
+print(f'Created {N}-table schema, four owner views, four-page ERD, analysis and team statement.')

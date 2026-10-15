@@ -1,6 +1,6 @@
 # Group 4 - ERD ownership views
 23 tables; one primary owner per table. Names will be mapped to A-D later.
-![All 23 entities, color-coded by owner](../../output/svg/Group4_ERD_Overview.svg)
+![All 23 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)
 [Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)
 
 ## Member A: Clients and reservations
