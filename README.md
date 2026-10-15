@@ -44,8 +44,9 @@ Add English names and map the four members to the assigned A-D work packages. Ow
 
 - [Analysis report](docs/milestone1/Group4_Analysis_Draft.md)
 - [Team statement](docs/milestone1/Group4_Team_Statement.md)
-- [Full ERD overview](output/svg/Group4_ERD_Overview.svg)
-- [Four ERD ownership views](docs/milestone1/Group4_ERD_Views.md): GitHub-rendered diagrams aligned with Member A-D responsibilities.
+- [Four-domain overview](output/svg/Group4_ERD_Overview.svg)
+- Individual diagrams: [A](output/svg/Group4_ERD_A.svg), [B](output/svg/Group4_ERD_B.svg), [C](output/svg/Group4_ERD_C.svg), [D](output/svg/Group4_ERD_D.svg)
+- [Four ERD ownership views](docs/milestone1/Group4_ERD_Views.md): the same SVG diagrams used by the PDF, with editable Mermaid sources.
 - [Full Mermaid ERD](docs/milestone1/Group4_ERD.mmd)
 - [PDF and ERD generator](scripts/build_milestone1.py): canonical table definitions are maintained here.
 
@@ -57,8 +58,12 @@ Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Gr
 
 ## Assignment 3 formatting reference
 
-The supplied Assignment 3 requirements and GChau example guide presentation: singular lower_case table names, camelCase attributes, clear headings, PK/FK markers, labelled relationships, cardinalities and documented assumptions. CloudNine remains the project domain; the travel and DVD exercises are not additional project requirements. Unique business identifiers are described in analysis R9 rather than displayed as UK/AK in the diagrams.
+The supplied Assignment 3 requirements and GChau example guide presentation: singular lower_case table names, camelCase attributes, clear headings, PK/FK markers, labelled relationships, cardinalities and documented assumptions. CloudNine remains the project domain; the travel and DVD exercises are not additional project requirements. Unique business identifiers are described in analysis R9; the diagrams display only PK/FK markers.
 
 The PDF contains four domain diagrams with complete attributes and labelled relationship cardinalities. It follows the supplied reference's simple table boxes and restrained black-and-white styling. Gray boxes repeat external entities by primary key; they do not represent additional tables.
 
 - [Field inventory CSV](docs/milestone1/Group4_ERD_Fields.csv)
+
+## Version consistency
+
+All three PDFs, four SVG diagrams, the combined overview, Mermaid sources and the field inventory are generated together. The overview reuses the four final domain diagrams. The reports and team work packages use the same 23 table names and 42 foreign-key relationships. Course reference PDFs are retained unchanged. Member names, access and acknowledgment remain pending until the team supplies them.

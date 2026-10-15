@@ -4,7 +4,11 @@
 [Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)
 
 ## Member A: Clients and reservations
-6 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+6 owned tables. Shaded boxes show primary keys of entities owned by another member.
+![Member A ERD](../../output/svg/Group4_ERD_A.svg)
+
+<details>
+<summary>Editable Mermaid source</summary>
 
 ```mermaid
 erDiagram
@@ -86,9 +90,14 @@ erDiagram
         int resourceTypeId PK
     }
 ```
+</details>
 
 ## Member B: Infrastructure and availability
-6 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+6 owned tables. Shaded boxes show primary keys of entities owned by another member.
+![Member B ERD](../../output/svg/Group4_ERD_B.svg)
+
+<details>
+<summary>Editable Mermaid source</summary>
 
 ```mermaid
 erDiagram
@@ -146,9 +155,14 @@ erDiagram
         int userId PK
     }
 ```
+</details>
 
 ## Member C: Deployments and services
-5 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+5 owned tables. Shaded boxes show primary keys of entities owned by another member.
+![Member C ERD](../../output/svg/Group4_ERD_C.svg)
+
+<details>
+<summary>Editable Mermaid source</summary>
 
 ```mermaid
 erDiagram
@@ -225,9 +239,14 @@ erDiagram
         int userId PK
     }
 ```
+</details>
 
 ## Member D: Metering and billing
-6 owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.
+6 owned tables. Shaded boxes show primary keys of entities owned by another member.
+![Member D ERD](../../output/svg/Group4_ERD_D.svg)
+
+<details>
+<summary>Editable Mermaid source</summary>
 
 ```mermaid
 erDiagram
@@ -310,3 +329,4 @@ erDiagram
         int userId PK
     }
 ```
+</details>

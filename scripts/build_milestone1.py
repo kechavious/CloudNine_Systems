@@ -1,5 +1,6 @@
 from pathlib import Path
 import re, html, subprocess
+import xml.etree.ElementTree as ET
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -15,17 +16,17 @@ for p in (DOC,OUT,TMP): p.mkdir(parents=True,exist_ok=True)
 raw={'Clients and people': {'client': 'clientId:int '
                                   'PK;parentClientId:int->client?;name:text;clientType:text;contactEmail:text;qualificationNote:text?',
                         'user_account': 'userId:int PK;name:text;email:text '
-                                        'UK;accountKind:text;staffRole:text?;status:text',
+                                        ';accountKind:text;staffRole:text?;status:text',
                         'client_membership': 'membershipId:int '
                                              'PK;clientId:int->client;userId:int->user_account;role:text;validFrom:timestamp;validTo:timestamp?',
                         'project': 'projectId:int PK;clientId:int->client;name:text'},
- 'Infrastructure and availability': {'region': 'regionId:int PK;name:text UK;regulatoryNote:text',
+ 'Infrastructure and availability': {'region': 'regionId:int PK;name:text;regulatoryNote:text',
                                      'availability_zone': 'zoneId:int '
                                                           'PK;regionId:int->region;name:text;redundancyNote:text;connectivityNote:text',
                                      'data_center': 'dataCenterId:int '
                                                     'PK;zoneId:int->availability_zone;name:text;location:text',
                                      'resource_type': 'resourceTypeId:int PK;name:text '
-                                                      'UK;intendedWorkload:text',
+                                                      ';intendedWorkload:text',
                                      'resource': 'resourceId:int '
                                                  'PK;resourceTypeId:int->resource_type;dataCenterId:int->data_center;localIdentifier:text;performanceTier:text;vcpuCount:int;memoryGib:decimal;storageGib:decimal;networkGbps:decimal',
                                      'resource_state': 'stateId:int '
@@ -40,21 +41,24 @@ raw={'Clients and people': {'client': 'clientId:int '
                                                         'PK;deploymentId:int->deployment;reservationItemId:int->reservation_item;resourceId:int->resource;capacityFraction:decimal;startsAt:timestamp;endsAt:timestamp?;allocationStatus:text;supersedesAllocationId:int->resource_allocation?;changeReason:text;assignedByUserId:int->user_account?',
                                  'deployment_service': 'deploymentServiceId:int '
                                                        'PK;deploymentId:int->deployment;serviceId:int->service;startsAt:timestamp;endsAt:timestamp?'},
- 'Services, rates and metering': {'service': 'serviceId:int PK;name:text UK;serviceType:text;billingUnit:text',
+ 'Services, rates and metering': {'service': 'serviceId:int PK;name:text;serviceType:text;billingUnit:text',
                                   'service_rate': 'serviceRateId:int '
                                                   'PK;serviceId:int->service;validFrom:timestamp;validTo:timestamp?;unitPrice:decimal',
                                   'usage_record': 'usageId:int '
                                                   'PK;deploymentServiceId:int->deployment_service;allocationId:int->resource_allocation?;quantity:decimal;periodStart:timestamp;periodEnd:timestamp;recordType:text;recordedAt:timestamp;supersedesUsageId:int->usage_record '
-                                                  'UK?'},
+                                                  '?'},
  'Billing and invoices': {'billing_account': 'billingAccountId:int '
                                              'PK;responsibleClientId:int->client;name:text;billingContactUserId:int->user_account?',
                           'charge': 'chargeId:int PK;usageId:int->usage_record '
-                                    'UK?;deploymentServiceId:int->deployment_service?;serviceRateId:int->service_rate?;adjustmentOfChargeId:int->charge?;authorizedByUserId:int->user_account?;chargeType:text;amount:decimal;status:text;reason:text;createdAt:timestamp',
+                                    '?;deploymentServiceId:int->deployment_service?;serviceRateId:int->service_rate?;adjustmentOfChargeId:int->charge?;authorizedByUserId:int->user_account?;chargeType:text;amount:decimal;status:text;reason:text;createdAt:timestamp',
                           'charge_share': 'chargeShareId:int '
                                           'PK;chargeId:int->charge;billingAccountId:int->billing_account;allocatedAmount:decimal',
                           'invoice': 'invoiceId:int '
                                      'PK;billingAccountId:int->billing_account;issuedAt:timestamp;dueAt:timestamp;status:text',
                           'invoice_line': 'chargeShareId:int PK->charge_share;invoiceId:int->invoice'}}
+# Additional identity rules are documented in analysis R9, not drawn as key markers.
+unique_attributes={('user_account','email'),('region','name'),('resource_type','name'),
+                   ('service','name'),('usage_record','supersedesUsageId'),('charge','usageId')}
 schema={}; modules={}
 for module,tables in raw.items():
  modules[module]=list(tables)
@@ -63,8 +67,8 @@ for module,tables in raw.items():
   for f in fields.split(';'):
    field,desc=f.split(':'); target=None
    if '->' in desc:
-    desc,target=desc.split('->'); target=target.replace(' UK','').rstrip('?').strip()
-   schema[name].append(dict(name=field,type=desc.split()[0].rstrip('?'),pk='PK' in desc,fk=target,nullable='?' in f,unique='UK' in f))
+    desc,target=desc.split('->'); target=target.rstrip('?').strip()
+   schema[name].append(dict(name=field,type=desc.split()[0].rstrip('?'),pk='PK' in desc,fk=target,nullable='?' in f,unique=(name,field) in unique_attributes))
 for name,fs in schema.items():
  assert any(f['pk'] for f in fs),name
  for f in fs:
@@ -125,14 +129,6 @@ views={
 }
 owner={name:member for member,(_,names) in views.items() for name in names}
 assert set(owner)==set(schema) and sum(len(v[1]) for v in views.values())==N
-palette={'A':'#245f9c','B':'#267361','C':'#855a9e','D':'#ad6625'}
-unique_groups={
- 'availability_zone':'UNIQUE(regionId, name)',
- 'data_center':'UNIQUE(zoneId, name)',
- 'resource':'UNIQUE(dataCenterId, localIdentifier)',
- 'service_rate':'UNIQUE(serviceId, validFrom)',
- 'charge_share':'UNIQUE(chargeId, billingAccountId)',
-}
 def endpoints(name,f):
  return ('0..1' if f['nullable'] else '1', '0..1' if f['unique'] or (f['pk'] and sum(x['pk'] for x in schema[name])==1) else '0..*')
 def graph(names,overview=False):
@@ -166,10 +162,9 @@ def graph(names,overview=False):
   dot.append('user_account -> client [style=invis, weight=20];')
  dot.append('}')
  return '\n'.join(dot)
-(TMP/'overview.dot').write_text(graph(list(schema),True))
 for member,(_,names) in views.items():
  (TMP/f'owner_{member}.dot').write_text(graph(names))
-node="""const fs=require('fs'); const {instance}=require('/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@viz-js/viz'); (async()=>{const v=await instance();for(const file of ['overview','owner_A','owner_B','owner_C','owner_D']){const p=process.argv[1]+'/'+file;fs.writeFileSync(p+'.svg',v.renderString(fs.readFileSync(p+'.dot','utf8'),{format:'svg'}));}})();"""
+node="""const fs=require('fs'); const {instance}=require('/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@viz-js/viz'); (async()=>{const v=await instance();for(const file of ['owner_A','owner_B','owner_C','owner_D']){const p=process.argv[1]+'/'+file;fs.writeFileSync(p+'.svg',v.renderString(fs.readFileSync(p+'.dot','utf8'),{format:'svg'}));}})();"""
 subprocess.run(['/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node','-e',node,str(TMP)],check=True)
 # Fail if Graphviz omitted a label or relationship instead of producing a full diagram.
 for member,(_,names) in views.items():
@@ -177,14 +172,28 @@ for member,(_,names) in views.items():
  svg=(TMP/f'owner_{member}.svg').read_text()
  assert svg.count('class="node"')==len(names)+len(external),member
  assert svg.count('class="edge"')==sum(bool(f['fk']) for name in names for f in schema[name]),member
-assert (TMP/'overview.svg').read_text().count('class="node"')==N
 svgout=ROOT/'output/svg';svgout.mkdir(parents=True,exist_ok=True)
-(svgout/'Group4_ERD_Overview.svg').write_text((TMP/'overview.svg').read_text())
+# Compose the four final diagrams into a readable two-by-two overview.
+ET.register_namespace('', 'http://www.w3.org/2000/svg')
+overview=ET.Element('{http://www.w3.org/2000/svg}svg',width='1800',height='2500',viewBox='0 0 1800 2500')
+title=ET.SubElement(overview,'{http://www.w3.org/2000/svg}title')
+title.text='CloudNine Systems - four ERD domains, 23 tables'
+for i,(member,(title,names)) in enumerate(views.items()):
+ x=30+(i%2)*900;y=55+(i//2)*1240
+ heading=ET.SubElement(overview,'{http://www.w3.org/2000/svg}text',x=str(x),y=str(y),attrib={'font-family':'Helvetica, Arial, sans-serif','font-size':'22','font-weight':'bold'})
+ heading.text=f'{member} | {title}'
+ panel=ET.fromstring((TMP/f'owner_{member}.svg').read_text())
+ _,_,pw,ph=map(float,panel.attrib['viewBox'].split())
+ scale=min(840/pw,1150/ph)
+ panel.set('x',str(x+(840-pw*scale)/2));panel.set('y',str(y+20))
+ panel.set('width',str(pw*scale));panel.set('height',str(ph*scale))
+ panel.set('preserveAspectRatio','xMidYMin meet');overview.append(panel)
+(svgout/'Group4_ERD_Overview.svg').write_text(ET.tostring(overview,encoding='unicode')+'\n')
 # Editable owner views render directly on GitHub; each repeats only necessary
 # external keys. The .mmd file remains the full schema with all FK relationships.
 parts=['# Group 4 - ERD ownership views','23 tables; one primary owner per table. Names will be mapped to A-D later.', '![All 23 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
 for member,(title,names) in views.items():
- parts += [f'## Member {member}: {title}',f'{len(names)} owned tables. Gray-reference styling is used in the PDF; referenced entities below show only their primary keys.','', '```mermaid','erDiagram','    direction LR']
+ parts += [f'## Member {member}: {title}',f'{len(names)} owned tables. Shaded boxes show primary keys of entities owned by another member.',f'![Member {member} ERD](../../output/svg/Group4_ERD_{member}.svg)','', '<details>', '<summary>Editable Mermaid source</summary>', '', '```mermaid','erDiagram','    direction LR']
  external=sorted({x['fk'] for name in names for x in schema[name] if x['fk'] and x['fk'] not in names})
  for name in names:
   for field in schema[name]:
@@ -200,16 +209,17 @@ for member,(title,names) in views.items():
    flags=', '.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk']))] if b)
    parts.append(f'        {field["type"]} {field["name"]}'+(' '+flags if flags else '')+(' "nullable"' if field['nullable'] else ''))
   parts.append('    }')
- parts += ['```','']
+ parts += ['```','</details>','']
 (DOC/'Group4_ERD_Views.md').write_text('\n'.join(parts).rstrip()+'\n')
 styles=getSampleStyleSheet()
-styles.add(ParagraphStyle(name='BodyCustom',fontName='Helvetica',fontSize=10,leading=14,spaceAfter=8,textColor=colors.HexColor('#243247')))
-styles.add(ParagraphStyle(name='TitleCustom',fontName='Helvetica-Bold',fontSize=23,leading=28,spaceAfter=16,textColor=colors.HexColor('#16324f')))
-styles.add(ParagraphStyle(name='SubCustom',fontName='Helvetica-Bold',fontSize=13,leading=17,spaceBefore=14,spaceAfter=7,textColor=colors.HexColor('#16324f')))
+styles.add(ParagraphStyle(name='BodyCustom',fontName='Helvetica',fontSize=10,leading=13,spaceAfter=7,textColor=colors.black))
+styles.add(ParagraphStyle(name='TitleCustom',fontName='Helvetica-Bold',fontSize=23,leading=28,spaceAfter=16,textColor=colors.black))
+styles.add(ParagraphStyle(name='SubCustom',fontName='Helvetica-Bold',fontSize=13,leading=17,spaceBefore=14,spaceAfter=7,textColor=colors.black))
 def footer(c,d):
- c.setFont('Helvetica',8); c.setFillColor(colors.HexColor('#64748b')); c.drawString(48,28,'GROUP 4 | CLOUDNINE SYSTEMS | MILESTONE 1'); c.drawRightString(letter[0]-48,28,str(d.page))
+ c.setFont('Helvetica',8); c.setFillColor(colors.HexColor('#555555')); c.drawString(48,28,'GROUP 4 | CLOUDNINE SYSTEMS | MILESTONE 1'); c.drawRightString(letter[0]-48,28,str(d.page))
 def pdf_text(md,path):
  story=[]
+ body_style=ParagraphStyle(name='CompactTeamBody',parent=styles['BodyCustom'],leading=12,spaceAfter=6) if path.name=='Group4_Team_Statement.pdf' else styles['BodyCustom']
  for line in md.splitlines():
   if not line.strip(): continue
   if line.startswith('# '): style='TitleCustom'; line=line[2:]
@@ -217,7 +227,7 @@ def pdf_text(md,path):
   else: style='BodyCustom'
   line=html.escape(line)
   line=re.sub(r'\*\*(.*?)\*\*',r'<b>\1</b>',line)
-  story.append(Paragraph(line,styles[style]))
+  story.append(Paragraph(line,body_style if style=='BodyCustom' else styles[style]))
  grouped=[]
  i=0
  while i<len(story):
@@ -225,9 +235,9 @@ def pdf_text(md,path):
    grouped.append(KeepTogether([story[i],story[i+1]]));i+=2
   else: grouped.append(story[i]);i+=1
  story=grouped
- SimpleDocTemplate(str(path),pagesize=letter,allowSplitting=1,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
+ SimpleDocTemplate(str(path),pagesize=letter,invariant=1,allowSplitting=1,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
 # Assignment-style diagrams: four readable domain views.
-c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'))
+c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),invariant=1)
 c.setTitle('Group 4 - CloudNine Systems - ER diagram')
 pages=[(f'owner_{member}',title+' - ER diagram',f'Member {member}: {len(names)} tables; shaded boxes reference another domain') for member,(title,names) in views.items()]
 for page,(file,title,subtitle) in enumerate(pages,1):
