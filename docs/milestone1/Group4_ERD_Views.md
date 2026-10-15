@@ -1,6 +1,8 @@
 # Group 4 - ERD ownership views
 20 tables; five tables per owner. Names will be mapped to A-D later.
+Connected overview: every entity appears once, and all cross-domain foreign keys are connected.
 ![All 20 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)
+[Zoomable overview PDF](../../output/pdf/Group4_ERD_Overview.pdf)
 [Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)
 
 ## Member A: Clients and reservations

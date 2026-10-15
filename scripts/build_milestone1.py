@@ -129,14 +129,17 @@ def endpoints(name,f):
  return ('0..1' if f['nullable'] else '1', '0..1' if f['unique'] or (f['pk'] and sum(x['pk'] for x in schema[name])==1) else '0..*')
 def graph(names,overview=False):
  external=[] if overview else sorted({f['fk'] for name in names for f in schema[name] if f['fk'] and f['fk'] not in names})
- aliases={'state_actor_ref':'user_account','state_resource_ref':'resource'} if 'resource_state' in names else {}
+ aliases={'state_actor_ref':'user_account','state_resource_ref':'resource'} if 'resource_state' in names and not overview else {}
  external+=list(aliases)
  dot=['digraph G {','graph [rankdir=TB, bgcolor="white", nodesep=0.8, ranksep=1.15, splines=polyline, pad=0.25, outputorder=edgesfirst];','node [shape=plain, fontname="Helvetica"];','edge [fontname="Helvetica", fontsize=11, color="#333333", arrowsize=0.6, labeldistance=2.0];']
+ if overview:
+  dot[1]=dot[1].replace('rankdir=TB','rankdir=LR').replace('ranksep=1.15','ranksep=1.6')
+  dot.append('graph [label="CloudNine Systems - connected ERD overview\\n20 entities | 37 relationships | A: clients | B: infrastructure | C: deployments and usage | D: billing", labelloc=t, fontsize=24, fontname="Helvetica"];')
  for name in names+external:
   ext=name in external; canonical=aliases.get(name,name)
   fs=[f for f in schema[canonical] if f['pk']] if ext else schema[canonical]
   color='#e9e9e9' if ext else '#ffffff'
-  label=canonical+(' (ref)' if ext else '')
+  label=(f'{owner[canonical]} / ' if overview else '')+canonical+(' (ref)' if ext else '')
   rows=[f'<TR><TD COLSPAN="3" BGCOLOR="{color}"><FONT COLOR="black" POINT-SIZE="13"><B>{label}</B></FONT></TD></TR>']
   for field in fs:
    key='/'.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk']))] if b)
@@ -150,7 +153,7 @@ def graph(names,overview=False):
    targetpk=next(x['name'] for x in schema[target] if x['pk'])
    destination=name
    source=target
-   if name=='resource_state':
+   if name=='resource_state' and not overview:
     source='state_actor_ref' if target=='user_account' else 'state_resource_ref'
    if target==name and name=='client':
     source=target+':n';destination=name+':n'
@@ -159,9 +162,10 @@ def graph(names,overview=False):
    dot.append(f'{source} -> {destination} [{attrs}];')
  dot.append('}')
  return '\n'.join(dot)
+(TMP/'overview.dot').write_text(graph(list(schema),True))
 for member,(_,names) in views.items():
  (TMP/f'owner_{member}.dot').write_text(graph(names))
-node="""const fs=require('fs'); const {instance}=require('/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@viz-js/viz'); (async()=>{const v=await instance();for(const file of ['owner_A','owner_B','owner_C','owner_D']){const p=process.argv[1]+'/'+file;fs.writeFileSync(p+'.svg',v.renderString(fs.readFileSync(p+'.dot','utf8'),{format:'svg'}));}})();"""
+node="""const fs=require('fs'); const {instance}=require('/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@viz-js/viz'); (async()=>{const v=await instance();for(const file of ['overview','owner_A','owner_B','owner_C','owner_D']){const p=process.argv[1]+'/'+file;fs.writeFileSync(p+'.svg',v.renderString(fs.readFileSync(p+'.dot','utf8'),{format:'svg'}));}})();"""
 subprocess.run(['/Users/kangzhengzou/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node','-e',node,str(TMP)],check=True)
 # Fail if Graphviz omitted a label or relationship instead of producing a full diagram.
 for member,(_,names) in views.items():
@@ -170,25 +174,22 @@ for member,(_,names) in views.items():
  assert svg.count('class="node"')==len(names)+len(external)+(2 if 'resource_state' in names else 0),member
  assert svg.count('class="edge"')==sum(bool(f['fk']) for name in names for f in schema[name]),member
 svgout=ROOT/'output/svg';svgout.mkdir(parents=True,exist_ok=True)
-# Compose the four final diagrams into a readable two-by-two overview.
-ET.register_namespace('', 'http://www.w3.org/2000/svg')
-overview=ET.Element('{http://www.w3.org/2000/svg}svg',width='1800',height='2500',viewBox='0 0 1800 2500')
-title=ET.SubElement(overview,'{http://www.w3.org/2000/svg}title')
-title.text='CloudNine Systems - four ERD domains, 20 tables'
-for i,(member,(title,names)) in enumerate(views.items()):
- x=30+(i%2)*900;y=55+(i//2)*1240
- heading=ET.SubElement(overview,'{http://www.w3.org/2000/svg}text',x=str(x),y=str(y),attrib={'font-family':'Helvetica, Arial, sans-serif','font-size':'22','font-weight':'bold'})
- heading.text=f'{member} | {title}'
- panel=ET.fromstring((TMP/f'owner_{member}.svg').read_text())
- _,_,pw,ph=map(float,panel.attrib['viewBox'].split())
- scale=min(840/pw,1150/ph)
- panel.set('x',str(x+(840-pw*scale)/2));panel.set('y',str(y+20))
- panel.set('width',str(pw*scale));panel.set('height',str(ph*scale))
- panel.set('preserveAspectRatio','xMidYMin meet');overview.append(panel)
-(svgout/'Group4_ERD_Overview.svg').write_text(ET.tostring(overview,encoding='unicode')+'\n')
+# The overview contains one node per entity and every FK, including cross-domain links.
+overview=(TMP/'overview.svg').read_text()
+assert overview.count('class="node"')==N
+assert overview.count('class="edge"')==sum(bool(f['fk']) for fs in schema.values() for f in fs)
+(svgout/'Group4_ERD_Overview.svg').write_text(overview)
+# A standalone vector PDF makes the large overview easy to zoom and share.
+overview_drawing=svg2rlg(str(TMP/'overview.svg'))
+overview_pdf=canvas.Canvas(str(OUT/'Group4_ERD_Overview.pdf'),pagesize=(overview_drawing.width+60,overview_drawing.height+85),invariant=1)
+overview_pdf.setTitle('CloudNine Systems - connected ERD overview')
+renderPDF.draw(overview_drawing,overview_pdf,30,55)
+overview_pdf.setFont('Helvetica',10)
+overview_pdf.drawString(30,30,'PK = primary key | FK = foreign key | ? = nullable | 1 = exactly one | 0..1 = optional one | 0..* = zero or more')
+overview_pdf.save()
 # Editable owner views render directly on GitHub; each repeats only necessary
 # external keys. The .mmd file remains the full schema with all FK relationships.
-parts=['# Group 4 - ERD ownership views',f'{N} tables; five tables per owner. Names will be mapped to A-D later.', '![All 20 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
+parts=['# Group 4 - ERD ownership views',f'{N} tables; five tables per owner. Names will be mapped to A-D later.', 'Connected overview: every entity appears once, and all cross-domain foreign keys are connected.', '![All 20 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)', '[Zoomable overview PDF](../../output/pdf/Group4_ERD_Overview.pdf)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
 for member,(title,names) in views.items():
  parts += [f'## Member {member}: {title}',f'{len(names)} owned tables. Shaded boxes show primary keys of entities owned by another member.',f'![Member {member} ERD](../../output/svg/Group4_ERD_{member}.svg)','', '<details>', '<summary>Editable Mermaid source</summary>', '', '```mermaid','erDiagram','    direction LR']
  external=sorted({x['fk'] for name in names for x in schema[name] if x['fk'] and x['fk'] not in names})

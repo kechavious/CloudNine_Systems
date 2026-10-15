@@ -46,18 +46,19 @@ The 20-table count meets the assignment's table threshold for A-level considerat
 
 - [Analysis source](docs/milestone1/Group4_Analysis_Draft.md)
 - [Team statement source](docs/milestone1/Group4_Team_Statement.md)
-- [Four-domain overview](output/svg/Group4_ERD_Overview.svg)
+- [Connected overview SVG](output/svg/Group4_ERD_Overview.svg): all 20 entities and 37 relationships, including links between work packages.
+- [Zoomable overview PDF](output/pdf/Group4_ERD_Overview.pdf)
 - Individual SVG diagrams: [A](output/svg/Group4_ERD_A.svg), [B](output/svg/Group4_ERD_B.svg), [C](output/svg/Group4_ERD_C.svg), [D](output/svg/Group4_ERD_D.svg)
 - [Domain views and editable Mermaid](docs/milestone1/Group4_ERD_Views.md)
 - [Full Mermaid source](docs/milestone1/Group4_ERD.mmd)
 - [Field inventory](docs/milestone1/Group4_ERD_Fields.csv)
 - [Generator and canonical table definitions](scripts/build_milestone1.py)
 
-The diagrams follow the supplied Assignment 3 example's restrained table-and-relationship layout: singular lower_case table names, camelCase attributes, headings and clear PK/FK markers. Additional uniqueness rules belong in analysis R9. Shaded reference boxes repeat existing entities rather than adding tables. GitHub views and the PDF use the same SVGs; the overview combines those four diagrams.
+The diagrams follow the supplied Assignment 3 example's restrained table-and-relationship layout: singular lower_case table names, camelCase attributes, headings and clear PK/FK markers. Additional uniqueness rules belong in analysis R9. Shaded reference boxes repeat existing entities rather than adding tables. GitHub views and the PDF use the same SVGs; the overview connects all 20 entities in one diagram, with each table appearing once and every cross-domain foreign key shown.
 
 ## Regeneration and checks
 
-Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Graphviz rendering uses Node.js and @viz-js/viz; the bundled runtime paths in the generator may need adjustment on another computer. Edit the generator for schema changes and Markdown sources for document text. All three PDFs, four diagram SVGs, the overview, Mermaid sources and CSV are regenerated together. PDF output is deterministic for unchanged source. Temporary renders are ignored by Git.
+Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Graphviz rendering uses Node.js and @viz-js/viz; the bundled runtime paths in the generator may need adjustment on another computer. Edit the generator for schema changes and Markdown sources for document text. The three submission PDFs, standalone overview PDF, four domain SVGs, connected overview SVG, Mermaid sources and CSV are regenerated together. PDF output is deterministic for unchanged source. Temporary renders are ignored by Git.
 
 ## Milestones and remaining work
 
