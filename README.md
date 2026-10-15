@@ -54,7 +54,7 @@ The 20-table count meets the assignment's table threshold for A-level considerat
 - [Field inventory](docs/milestone1/Group4_ERD_Fields.csv)
 - [Generator and canonical table definitions](scripts/build_milestone1.py)
 
-The diagrams follow the supplied Assignment 3 example's restrained table-and-relationship layout: singular lower_case table names, camelCase attributes, headings and clear PK/FK markers. Additional uniqueness rules belong in analysis R9. Shaded reference boxes repeat existing entities rather than adding tables. GitHub views and the PDF use the same SVGs; the overview connects all 20 entities in one diagram, with each table appearing once and every cross-domain foreign key shown.
+The diagrams follow the supplied visual references: rounded white table boxes, three divided columns, thin black orthogonal connectors and crow-foot cardinalities. They retain singular lower_case table names, camelCase attributes, headings and clear PK/FK markers. Additional uniqueness rules belong in analysis R9. Shaded reference boxes repeat existing entities rather than adding tables. GitHub views and the PDF use the same SVGs; the overview connects all 20 entities in one diagram, with each table appearing once and every cross-domain foreign key shown.
 
 ## Regeneration and checks
 
