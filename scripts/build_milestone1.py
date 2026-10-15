@@ -7,54 +7,53 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.graphics import renderPDF
-from svglib.svglib import svg2rlg
 ROOT=Path(__file__).resolve().parents[1]
 DOC=ROOT/'docs/milestone1'; OUT=ROOT/'output/pdf'; TMP=ROOT/'tmp/pdfs'
 for p in (DOC,OUT,TMP): p.mkdir(parents=True,exist_ok=True)
 # field:type; arrows identify the referenced PK; ? means nullable.
-raw={'Clients and people': {'CLIENT': 'client_id:int '
-                                  'PK;parent_client_id:int->CLIENT?;name:text;client_type:text;contact_email:text;qualification_note:text?',
-                        'USER_ACCOUNT': 'user_id:int PK;name:text;email:text '
-                                        'UK;account_kind:text;staff_role:text?;status:text',
-                        'CLIENT_MEMBERSHIP': 'membership_id:int '
-                                             'PK;client_id:int->CLIENT;user_id:int->USER_ACCOUNT;role:text;valid_from:timestamp;valid_to:timestamp?',
-                        'PROJECT': 'project_id:int PK;client_id:int->CLIENT;name:text'},
- 'Infrastructure and availability': {'REGION': 'region_id:int PK;name:text UK;regulatory_note:text',
-                                     'AVAILABILITY_ZONE': 'zone_id:int '
-                                                          'PK;region_id:int->REGION;name:text;redundancy_note:text;connectivity_note:text',
-                                     'DATA_CENTER': 'data_center_id:int '
-                                                    'PK;zone_id:int->AVAILABILITY_ZONE;name:text;location:text',
-                                     'RESOURCE_TYPE': 'resource_type_id:int PK;name:text '
-                                                      'UK;intended_workload:text',
-                                     'RESOURCE': 'resource_id:int '
-                                                 'PK;resource_type_id:int->RESOURCE_TYPE;data_center_id:int->DATA_CENTER;local_identifier:text;performance_tier:text;vcpu_count:int;memory_gib:decimal;storage_gib:decimal;network_gbps:decimal',
-                                     'RESOURCE_STATE': 'state_id:int '
-                                                       'PK;resource_id:int->RESOURCE;status:text;reason:text;starts_at:timestamp;ends_at:timestamp?;recorded_by_user_id:int->USER_ACCOUNT?'},
- 'Reservations and requests': {'RESERVATION': 'reservation_id:int '
-                                              'PK;client_id:int->CLIENT;created_at:timestamp;start_time:timestamp;end_time:timestamp;status:text;agreement_note:text?;approved_by_user_id:int->USER_ACCOUNT?',
-                               'RESERVATION_ITEM': 'reservation_item_id:int '
-                                                   'PK;reservation_id:int->RESERVATION;resource_type_id:int->RESOURCE_TYPE;quantity:int;min_vcpu:int;min_memory_gib:decimal;min_storage_gib:decimal;min_network_gbps:decimal;preferred_region_id:int->REGION?;preferred_zone_id:int->AVAILABILITY_ZONE?;preferred_data_center_id:int->DATA_CENTER?;location_mode:text'},
- 'Deployments and assignments': {'DEPLOYMENT': 'deployment_id:int '
-                                               'PK;reservation_id:int->RESERVATION;project_id:int->PROJECT?;name:text;workload_note:text;started_at:timestamp?;ended_at:timestamp?;confidentiality_level:text;status:text;priority:int;scaling_mode:text',
-                                 'RESOURCE_ALLOCATION': 'allocation_id:int '
-                                                        'PK;deployment_id:int->DEPLOYMENT;reservation_item_id:int->RESERVATION_ITEM;resource_id:int->RESOURCE;capacity_fraction:decimal;starts_at:timestamp;ends_at:timestamp?;allocation_status:text;supersedes_allocation_id:int->RESOURCE_ALLOCATION?;change_reason:text;assigned_by_user_id:int->USER_ACCOUNT?',
-                                 'DEPLOYMENT_SERVICE': 'deployment_service_id:int '
-                                                       'PK;deployment_id:int->DEPLOYMENT;service_id:int->SERVICE;starts_at:timestamp;ends_at:timestamp?'},
- 'Services, rates and metering': {'SERVICE': 'service_id:int PK;name:text UK;service_type:text;billing_unit:text',
-                                  'SERVICE_RATE': 'service_rate_id:int '
-                                                  'PK;service_id:int->SERVICE;valid_from:timestamp;valid_to:timestamp?;unit_price:decimal',
-                                  'USAGE_RECORD': 'usage_id:int '
-                                                  'PK;deployment_service_id:int->DEPLOYMENT_SERVICE;allocation_id:int->RESOURCE_ALLOCATION?;quantity:decimal;period_start:timestamp;period_end:timestamp;record_type:text;recorded_at:timestamp;supersedes_usage_id:int->USAGE_RECORD '
+raw={'Clients and people': {'client': 'clientId:int '
+                                  'PK;parentClientId:int->client?;name:text;clientType:text;contactEmail:text;qualificationNote:text?',
+                        'user_account': 'userId:int PK;name:text;email:text '
+                                        'UK;accountKind:text;staffRole:text?;status:text',
+                        'client_membership': 'membershipId:int '
+                                             'PK;clientId:int->client;userId:int->user_account;role:text;validFrom:timestamp;validTo:timestamp?',
+                        'project': 'projectId:int PK;clientId:int->client;name:text'},
+ 'Infrastructure and availability': {'region': 'regionId:int PK;name:text UK;regulatoryNote:text',
+                                     'availability_zone': 'zoneId:int '
+                                                          'PK;regionId:int->region;name:text;redundancyNote:text;connectivityNote:text',
+                                     'data_center': 'dataCenterId:int '
+                                                    'PK;zoneId:int->availability_zone;name:text;location:text',
+                                     'resource_type': 'resourceTypeId:int PK;name:text '
+                                                      'UK;intendedWorkload:text',
+                                     'resource': 'resourceId:int '
+                                                 'PK;resourceTypeId:int->resource_type;dataCenterId:int->data_center;localIdentifier:text;performanceTier:text;vcpuCount:int;memoryGib:decimal;storageGib:decimal;networkGbps:decimal',
+                                     'resource_state': 'stateId:int '
+                                                       'PK;resourceId:int->resource;status:text;reason:text;startsAt:timestamp;endsAt:timestamp?;recordedByUserId:int->user_account?'},
+ 'Reservations and requests': {'reservation': 'reservationId:int '
+                                              'PK;clientId:int->client;createdAt:timestamp;startTime:timestamp;endTime:timestamp;status:text;agreementNote:text?;approvedByUserId:int->user_account?',
+                               'reservation_item': 'reservationItemId:int '
+                                                   'PK;reservationId:int->reservation;resourceTypeId:int->resource_type;quantity:int;minVcpu:int;minMemoryGib:decimal;minStorageGib:decimal;minNetworkGbps:decimal;preferredRegionId:int->region?;preferredZoneId:int->availability_zone?;preferredDataCenterId:int->data_center?;locationMode:text'},
+ 'Deployments and assignments': {'deployment': 'deploymentId:int '
+                                               'PK;reservationId:int->reservation;projectId:int->project?;name:text;workloadNote:text;startedAt:timestamp?;endedAt:timestamp?;confidentialityLevel:text;status:text;priority:int;scalingMode:text',
+                                 'resource_allocation': 'allocationId:int '
+                                                        'PK;deploymentId:int->deployment;reservationItemId:int->reservation_item;resourceId:int->resource;capacityFraction:decimal;startsAt:timestamp;endsAt:timestamp?;allocationStatus:text;supersedesAllocationId:int->resource_allocation?;changeReason:text;assignedByUserId:int->user_account?',
+                                 'deployment_service': 'deploymentServiceId:int '
+                                                       'PK;deploymentId:int->deployment;serviceId:int->service;startsAt:timestamp;endsAt:timestamp?'},
+ 'Services, rates and metering': {'service': 'serviceId:int PK;name:text UK;serviceType:text;billingUnit:text',
+                                  'service_rate': 'serviceRateId:int '
+                                                  'PK;serviceId:int->service;validFrom:timestamp;validTo:timestamp?;unitPrice:decimal',
+                                  'usage_record': 'usageId:int '
+                                                  'PK;deploymentServiceId:int->deployment_service;allocationId:int->resource_allocation?;quantity:decimal;periodStart:timestamp;periodEnd:timestamp;recordType:text;recordedAt:timestamp;supersedesUsageId:int->usage_record '
                                                   'UK?'},
- 'Billing and invoices': {'BILLING_ACCOUNT': 'billing_account_id:int '
-                                             'PK;responsible_client_id:int->CLIENT;name:text;billing_contact_user_id:int->USER_ACCOUNT?',
-                          'CHARGE': 'charge_id:int PK;usage_id:int->USAGE_RECORD '
-                                    'UK?;deployment_service_id:int->DEPLOYMENT_SERVICE?;service_rate_id:int->SERVICE_RATE?;adjustment_of_charge_id:int->CHARGE?;authorized_by_user_id:int->USER_ACCOUNT?;charge_type:text;amount:decimal;status:text;reason:text;created_at:timestamp',
-                          'CHARGE_SHARE': 'charge_share_id:int '
-                                          'PK;charge_id:int->CHARGE;billing_account_id:int->BILLING_ACCOUNT;allocated_amount:decimal',
-                          'INVOICE': 'invoice_id:int '
-                                     'PK;billing_account_id:int->BILLING_ACCOUNT;issued_at:timestamp;due_at:timestamp;status:text',
-                          'INVOICE_LINE': 'charge_share_id:int PK->CHARGE_SHARE;invoice_id:int->INVOICE'}}
+ 'Billing and invoices': {'billing_account': 'billingAccountId:int '
+                                             'PK;responsibleClientId:int->client;name:text;billingContactUserId:int->user_account?',
+                          'charge': 'chargeId:int PK;usageId:int->usage_record '
+                                    'UK?;deploymentServiceId:int->deployment_service?;serviceRateId:int->service_rate?;adjustmentOfChargeId:int->charge?;authorizedByUserId:int->user_account?;chargeType:text;amount:decimal;status:text;reason:text;createdAt:timestamp',
+                          'charge_share': 'chargeShareId:int '
+                                          'PK;chargeId:int->charge;billingAccountId:int->billing_account;allocatedAmount:decimal',
+                          'invoice': 'invoiceId:int '
+                                     'PK;billingAccountId:int->billing_account;issuedAt:timestamp;dueAt:timestamp;status:text',
+                          'invoice_line': 'chargeShareId:int PK->charge_share;invoiceId:int->invoice'}}
 schema={}; modules={}
 for module,tables in raw.items():
  modules[module]=list(tables)
@@ -71,6 +70,36 @@ for name,fs in schema.items():
   assert not f['fk'] or f['fk'] in schema,(name,f)
   assert not (f['pk'] and f['nullable'])
 N=len(schema)
+# Portable field inventory for external diagram authoring (no alternate-key markers).
+import csv
+with (DOC/'Group4_ERD_Fields.csv').open('w',newline='') as inventory:
+ writer=csv.writer(inventory)
+ writer.writerow(['table','attribute','type','key','nullable','referencesTable','referencesAttribute'])
+ for name,fs in schema.items():
+  for f in fs:
+   target=f['fk']
+   writer.writerow([name,f['name'],f['type'],'/'.join(k for k,b in [('PK',f['pk']),('FK',bool(target))] if b),f['nullable'],target or '',next((x['name'] for x in schema[target] if x['pk']),'') if target else ''])
+
+
+def relationship_label(field):
+ name=field['name']
+ special={
+  'parentClientId':'has child client', 'approvedByUserId':'approves reservation',
+  'recordedByUserId':'records resource state', 'assignedByUserId':'assigns allocation',
+  'authorizedByUserId':'authorizes charge', 'billingContactUserId':'is contact for',
+  'responsibleClientId':'is responsible for', 'supersedesAllocationId':'is replaced by',
+  'supersedesUsageId':'is corrected by', 'adjustmentOfChargeId':'has adjustment',
+  'preferredRegionId':'is preferred by', 'preferredZoneId':'is preferred by',
+  'preferredDataCenterId':'is preferred by',
+ }
+ if name in special: return special[name]
+ return {'client':'has', 'user_account':'has membership', 'region':'contains',
+  'availability_zone':'contains', 'data_center':'hosts', 'resource_type':'classifies',
+  'resource':'has', 'reservation':'has', 'reservation_item':'is fulfilled by',
+  'project':'groups', 'deployment':'has', 'resource_allocation':'supports',
+  'service':'has', 'service_rate':'prices', 'deployment_service':'generates',
+  'usage_record':'produces', 'charge':'is split into', 'billing_account':'has',
+  'charge_share':'appears on', 'invoice':'contains'}[field['fk']]
 
 lines=['erDiagram','    direction LR']
 for name,fs in schema.items():
@@ -78,30 +107,30 @@ for name,fs in schema.items():
   if f['fk']:
    left='o|' if f['nullable'] else '||'
    right='o|' if f['unique'] or (f['pk'] and sum(x['pk'] for x in fs)==1) else 'o{'
-   lines.append(f'    {f["fk"]} {left}--{right} {name} : {f["name"]}')
+   lines.append(f'    {f["fk"]} {left}--{right} {name} : {relationship_label(f)}')
 for name,fs in schema.items():
  lines.append(f'    {name} {{')
  for f in fs:
-  flags=', '.join(x for x,b in [('PK',f['pk']),('FK',bool(f['fk'])),('UK',f['unique'])] if b)
+  flags=', '.join(x for x,b in [('PK',f['pk']),('FK',bool(f['fk']))] if b)
   lines.append(f'        {f["type"]} {f["name"]}'+(' '+flags if flags else '')+(' "nullable"' if f['nullable'] else ''))
  lines.append('    }')
 (DOC/'Group4_ERD.mmd').write_text('\n'.join(lines)+'\n')
 # Views follow the same A-D ownership as the Team Statement.
 views={
- 'A': ('Clients and reservations', ['CLIENT','USER_ACCOUNT','CLIENT_MEMBERSHIP','PROJECT','RESERVATION','RESERVATION_ITEM']),
- 'B': ('Infrastructure and availability', ['REGION','AVAILABILITY_ZONE','DATA_CENTER','RESOURCE_TYPE','RESOURCE','RESOURCE_STATE']),
- 'C': ('Deployments and services', ['DEPLOYMENT','RESOURCE_ALLOCATION','DEPLOYMENT_SERVICE','SERVICE','SERVICE_RATE']),
- 'D': ('Metering and billing', ['USAGE_RECORD','BILLING_ACCOUNT','CHARGE','CHARGE_SHARE','INVOICE','INVOICE_LINE']),
+ 'A': ('Clients and reservations', ['client','user_account','client_membership','project','reservation','reservation_item']),
+ 'B': ('Infrastructure and availability', ['region','availability_zone','data_center','resource_type','resource','resource_state']),
+ 'C': ('Deployments and services', ['deployment','resource_allocation','deployment_service','service','service_rate']),
+ 'D': ('Metering and billing', ['usage_record','billing_account','charge','charge_share','invoice','invoice_line']),
 }
 owner={name:member for member,(_,names) in views.items() for name in names}
 assert set(owner)==set(schema) and sum(len(v[1]) for v in views.values())==N
 palette={'A':'#245f9c','B':'#267361','C':'#855a9e','D':'#ad6625'}
 unique_groups={
- 'AVAILABILITY_ZONE':'UNIQUE(region_id, name)',
- 'DATA_CENTER':'UNIQUE(zone_id, name)',
- 'RESOURCE':'UNIQUE(data_center_id, local_identifier)',
- 'SERVICE_RATE':'UNIQUE(service_id, valid_from)',
- 'CHARGE_SHARE':'UNIQUE(charge_id, billing_account_id)',
+ 'availability_zone':'UNIQUE(regionId, name)',
+ 'data_center':'UNIQUE(zoneId, name)',
+ 'resource':'UNIQUE(dataCenterId, localIdentifier)',
+ 'service_rate':'UNIQUE(serviceId, validFrom)',
+ 'charge_share':'UNIQUE(chargeId, billingAccountId)',
 }
 def endpoints(name,f):
  return ('0..1' if f['nullable'] else '1', '0..1' if f['unique'] or (f['pk'] and sum(x['pk'] for x in schema[name])==1) else '0..*')
@@ -114,18 +143,15 @@ def graph(names,overview=False):
   label=f'{owner[name]} / {name}'+(' (reference)' if ext else '')
   rows=[f'<TR><TD COLSPAN="2" BGCOLOR="{color}"><FONT COLOR="white" POINT-SIZE="11"><B>{label}</B></FONT></TD></TR>']
   for field in fs:
-   key='/'.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk'])),('UK',field['unique'])] if b)
+   key='/'.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk']))] if b)
    rows.append(f'<TR><TD PORT="{field["name"]}" ALIGN="LEFT"><FONT POINT-SIZE="10">{key or "&#160;"}</FONT></TD><TD ALIGN="LEFT"><FONT POINT-SIZE="10">{field["name"]}: {field["type"]}{" ?" if field["nullable"] else ""}</FONT></TD></TR>')
-  if not ext and not overview and name in unique_groups:
-   rows.append(f'<TR><TD COLSPAN="2" ALIGN="LEFT" BGCOLOR="#f1f5f9"><FONT POINT-SIZE="9">{unique_groups[name]}</FONT></TD></TR>')
   dot.append(f'{name} [label=<<TABLE BORDER="1" COLOR="#c6d0dc" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">'+''.join(rows)+'</TABLE>>];')
  for name in names:
   for field in schema[name]:
    target=field['fk']
    if not target: continue
-   # The overview omits audit-actor and recursive links. Every FK, including
-   # these omitted links, is present in its owned-table detail view.
-   if overview and (target==name or target=='USER_ACCOUNT' and name!='CLIENT_MEMBERSHIP'):
+   # The overview is an entity inventory; all relationships are in detail views.
+   if overview:
     continue
    parent,child=endpoints(name,field)
    targetpk=next(x['name'] for x in schema[target] if x['pk'])
@@ -162,12 +188,12 @@ for member,(title,names) in views.items():
     left='o|' if field['nullable'] else '||'
     _,right=endpoints(name,field)
     right='o|' if right=='0..1' else 'o{'
-    parts.append(f'    {field["fk"]} {left}--{right} {name} : {field["name"]}')
+    parts.append(f'    {field["fk"]} {left}--{right} {name} : {relationship_label(field)}')
  for name in names+external:
   parts.append(f'    {name} {{')
   for field in schema[name]:
    if name in external and not field['pk']:continue
-   flags=', '.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk'])),('UK',field['unique'])] if b)
+   flags=', '.join(k for k,b in [('PK',field['pk']),('FK',bool(field['fk']))] if b)
    parts.append(f'        {field["type"]} {field["name"]}'+(' '+flags if flags else '')+(' "nullable"' if field['nullable'] else ''))
   parts.append('    }')
  parts += ['```','']
@@ -196,60 +222,69 @@ def pdf_text(md,path):
   else: grouped.append(story[i]);i+=1
  story=grouped
  SimpleDocTemplate(str(path),pagesize=letter,allowSplitting=1,rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=48).build(story,onFirstPage=footer,onLaterPages=footer)
-# ERD submission: guide, all-table overview, four owned-table views, constraints.
+# Crossing-free atlas: each FK has its own horizontal relationship lane.
 c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),pagesize=letter)
-c.setTitle('Group 4 - CloudNine Systems - 23-table ERD')
-c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',27);c.drawString(48,714,'CloudNine Systems')
-c.setFont('Helvetica-Bold',17);c.drawString(48,684,'Group 4 | Milestone 1 | ERD')
-c.setFont('Helvetica',11);c.drawString(48,650,'23 core tables. Four work packages. One connected logical design.')
-c.setFont('Helvetica-Bold',12);c.drawString(48,612,'Core workflow')
-flow=['Client requests -> reservation and items -> deployment and allocation', 'Provisioned service -> usage -> charge -> payer share -> invoice']
-for i,text in enumerate(flow):c.setFont('Helvetica',10);c.drawString(48,588-i*20,text)
-y=524
-for member,(title,names) in views.items():
- c.setFillColor(colors.HexColor(palette[member]));c.roundRect(48,y-8,30,27,4,fill=1,stroke=0)
- c.setFillColor(colors.white);c.setFont('Helvetica-Bold',12);c.drawString(59,y,member)
- c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',11);c.drawString(90,y+5,f'Member {member}: {title}')
- c.setFont('Helvetica',10);c.drawString(90,y-12,f'{len(names)} tables | Detailed view: page {list(views).index(member)+3}');y-=66
-notes=['Page 2: all 23 entities, primary keys and principal domain relationships.',
-       'Pages 3-6: every owned attribute and every FK, including actors and self-links.',
-       'Page 7: composite uniqueness and important constraints.',
-       '1 = exactly one; 0..1 = optional one; 0..* = zero or more.',
-       'PK = primary key; FK = foreign key; UK = single-column unique key.',
-       '? = nullable; gray boxes = external references, not duplicate tables.',
-       'All money is USD; all timestamps are UTC.',
-       '3NF reasoning and scope assumptions are in the draft analysis report.']
-for text in notes:c.setFillColor(colors.HexColor('#475569'));c.setFont('Helvetica',9);c.drawString(48,y,text);y-=19
-c.setFont('Helvetica',8);c.drawString(48,28,'Group 4 | Design draft | Names and member acknowledgment pending');c.drawRightString(564,28,'1 / 7');c.showPage()
-def draw_graph(file,title,subtitle,page):
- d=svg2rlg(str(TMP/f'{file}.svg'))
- w=max(792,d.width+80);h=max(612,d.height+145)
- c.setPageSize((w,h));c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',21);c.drawString(40,h-37,title)
- c.setFont('Helvetica',10);c.drawString(40,h-59,subtitle)
- renderPDF.draw(d,c,(w-d.width)/2,48)
- c.setFont('Helvetica',9);c.drawString(40,23,'Group 4 | CloudNine Systems | PK / FK / UK | ? nullable | 1 / 0..1 / 0..* multiplicities')
- c.drawRightString(w-40,23,f'{page} / 7');c.showPage()
-draw_graph('overview','All-table overview | 23 entities','A = clients / requests; B = resources; C = deployments / services; D = usage / billing. Actor and recursive FKs appear in detail views.',2)
-for i,(member,(title,names)) in enumerate(views.items(),3):
- draw_graph(f'owner_{member}',f'Member {member} | {title}',f'{len(names)} owned tables. Gray boxes reference other owners. Lines connect parent PKs to child FKs.',i)
-c.setPageSize(letter)
-c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',22);c.drawString(48,714,'Keys and integrity rules')
-constraints=[
- ('Composite UNIQUE constraints', [name+': '+rule for name,rule in unique_groups.items()]),
- ('Exclusive choices (XOR)', ['RESERVATION_ITEM: at most one preferred location level.', 'CHARGE: exactly one of usage_id, deployment_service_id,', 'or adjustment_of_charge_id. Metered charges require service_rate_id.']),
- ('Lifecycle and financial rules', ['Approved reservations contain items; issued invoices contain lines.', 'Resource type, minimum capacity, dates and mandatory locations must match.', 'Concurrent assigned fractions cannot exceed one per resource.', 'Concurrent item assignments cannot exceed the requested instance count.', 'State intervals for the same resource cannot overlap.', 'Final shares total the charge; posted charges and shares retain history.', 'An invoice line must reference a final share for the same payer account.', 'A share appears on at most one invoice (INVOICE_LINE PK/FK).']),
- ('History and normalization', ['Allocation, availability, rate and usage-correction history are retained.', 'Configuration lineage, reservation revisions and full event logs are deferred.', 'Do not repeat region or zone in RESOURCE, or deployment in USAGE_RECORD.', 'Do not repeat invoice membership or a billing rule in CHARGE_SHARE.', 'Temporal, cross-table and aggregate rules need transactional checks.', 'See analysis sections 3-5 for dependencies, assumptions and limitations.']),
-]
-y=673
-for heading,items in constraints:
- c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',12);c.drawString(48,y,heading);y-=23
- for item in items:
-  c.setFillColor(colors.HexColor('#475569'));c.setFont('Helvetica',9);c.drawString(56,y,item);y-=18
- y-=17
-c.setFont('Helvetica',8);c.drawString(48,28,'Group 4 | Logical design | All 23 tables have a primary key');c.drawRightString(564,28,'7 / 7');c.showPage();c.save()
+c.setTitle('Group 4 - CloudNine Systems - ERD')
+total=N+1
+c.setFillColor(colors.HexColor('#16324f'));c.setFont('Helvetica-Bold',24)
+c.drawString(40,742,'CloudNine Systems | ERD')
+c.setFont('Helvetica',11)
+intro=['23 tables in 3NF. Table names: singular lower_case; attributes: camelCase.',
+ 'PK = primary key; FK = foreign key. No alternate-key markers are shown.',
+ 'Each detail page lists every attribute and every outgoing foreign key.',
+ 'Relationship lanes are independent: lines never cross.',
+ 'Endpoint numbers give the number of records at that end per opposite record.',
+ '1 = exactly one; 0..1 = zero or one; 0..* = zero or more.',
+ 'Nullable attributes say "optional". All other attributes are required.',
+ 'Uniqueness and other business rules: analysis report, section 4 (R1-R9).',
+ 'Tool: generated PDF; not a Lucidchart-authored submission.',
+ 'Assignment 3 is a formatting reference; the domain remains CloudNine.']
+for i,t in enumerate(intro):c.drawString(40,710-i*20,t)
+for index,(member,(title,names)) in enumerate(views.items()):
+ x=40+(index%2)*280;y=478-(index//2)*190
+ c.setFillColor(colors.HexColor(palette[member]));c.setFont('Helvetica-Bold',12)
+ c.drawString(x,y,f'Member {member}')
+ c.setFont('Helvetica',10);c.drawString(x,y-16,title);y-=16;y-=22
+ c.setFillColor(colors.HexColor('#243247'));c.setFont('Helvetica',10)
+ for name in names:
+  c.drawString(x+4,y,f'{name}  -  page {list(schema).index(name)+2}');y-=17
+ y-=12
+c.setFont('Helvetica',8);c.drawString(40,24,f'Group 4 | Entity index | 1 / {total}')
+c.showPage()
+for page,(name,fs) in enumerate(schema.items(),2):
+ relations=[f for f in fs if f['fk']]
+ w=1200;h=max(800,130+len(relations)*105,150+len(fs)*30)
+ c.setPageSize((w,h));c.setFillColor(colors.HexColor(palette[owner[name]]))
+ c.setFont('Helvetica-Bold',24);c.drawString(40,h-42,f'{name} | Member {owner[name]}')
+ c.setFont('Helvetica',11);c.drawString(40,h-66,'Attributes and labelled relationships | One independent lane per foreign key')
+ c.setFont('Helvetica-Bold',12);c.drawString(40,h-101,'Key');c.drawString(95,h-101,'Attribute');c.drawString(320,h-101,'Type / optionality')
+ for i,f in enumerate(fs):
+  y=h-131-i*30
+  c.setFillColor(colors.HexColor('#f1f5f9') if i%2==0 else colors.white);c.rect(35,y-9,470,28,fill=1,stroke=0)
+  c.setFillColor(colors.HexColor('#243247'));c.setFont('Helvetica-Bold' if f['pk'] else 'Helvetica',11)
+  key='/'.join(k for k,b in [('PK',f['pk']),('FK',bool(f['fk']))] if b)
+  c.drawString(40,y,key);c.drawString(95,y,f['name']);c.drawString(320,y,f['type']+(' (optional)' if f['nullable'] else ''))
+ c.setFont('Helvetica-Bold',12);c.drawString(550,h-101,'Relationships (parent to child)')
+ if not relations:
+  c.setFont('Helvetica',11);c.drawString(550,h-135,'No outgoing foreign keys; incoming links appear on child pages.')
+ for i,f in enumerate(relations):
+  y=h-160-i*105;target=f['fk'];pk=next(x['name'] for x in schema[target] if x['pk'])
+  parent,child=endpoints(name,f)
+  c.setFillColor(colors.HexColor('#f1f5f9'));c.setStrokeColor(colors.HexColor('#c6d0dc'))
+  c.roundRect(550,y-20,220,48,4,fill=1,stroke=1);c.roundRect(955,y-20,220,48,4,fill=1,stroke=1)
+  c.setFillColor(colors.HexColor('#243247'));c.setFont('Helvetica-Bold',10)
+  c.drawString(560,y+10,target);c.drawString(965,y+10,name)
+  c.setFont('Helvetica',10);c.drawString(560,y-7,'PK '+pk);c.drawString(965,y-7,'FK '+f['name'])
+  c.setStrokeColor(colors.HexColor('#61738b'));c.line(770,y,955,y)
+  c.setFont('Helvetica-Bold',10);c.drawString(777,y-15,parent);c.drawRightString(948,y-15,child)
+  c.setFont('Helvetica',10);c.drawCentredString(862,y+12,relationship_label(f))
+ c.setFillColor(colors.HexColor('#475569'));c.setFont('Helvetica',9)
+ c.drawString(40,25,'Group 4 | 1 = exactly one | 0..1 = optional one | 0..* = zero or more | Assumptions: analysis R1-R9')
+ c.drawRightString(w-40,25,f'{page} / {total}');c.showPage()
+c.save()
 report=(DOC/'Group4_Analysis_Draft.md').read_text()
 team=(DOC/'Group4_Team_Statement.md').read_text()
 (DOC/'Group4_Analysis_Draft.md').write_text(report)
 (DOC/'Group4_Team_Statement.md').write_text(team)
 pdf_text(report,OUT/'Group4_Analysis_Draft.pdf');pdf_text(team,OUT/'Group4_Team_Statement.pdf')
-print(f'Created {N}-table schema, four owner views, seven-page ERD, analysis and team statement.')
+print(f'Created {N}-table schema, four owner views, crossing-free ERD atlas, analysis and team statement.')
