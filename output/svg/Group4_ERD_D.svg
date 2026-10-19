@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1245.0pt" height="1107pt" viewBox="0.0 0.0 1245.0 1107.0">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1088.8)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1245.0pt" height="1134pt" viewBox="0.0 0.0 1245.0 1134.0">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1116)">
 <title>G</title>
-<polygon fill="white" stroke="none" points="-18,18 -18,-1088.8 1066.59,-1088.8 1066.59,18 -18,18" />
+<polygon fill="white" stroke="none" points="-18,18 -18,-1116 1066.59,-1116 1066.59,18 -18,18" />
+<text xml:space="preserve" text-anchor="middle" x="524.29" y="-1079.6" font-family="Helvetica,sans-Serif" font-size="16.00">Yi Wang | Member D</text>
 
 <g id="edge1" class="edge">
 <title>service-&gt;service_rate</title>

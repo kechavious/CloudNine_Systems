@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1463.0pt" height="1370pt" viewBox="0.0 0.0 1463.0 1370.0">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1352)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1463.0pt" height="1397pt" viewBox="0.0 0.0 1463.0 1397.0">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1379.2)">
 <title>G</title>
-<polygon fill="white" stroke="none" points="-18,18 -18,-1352 1284.62,-1352 1284.62,18 -18,18" />
+<polygon fill="white" stroke="none" points="-18,18 -18,-1379.2 1284.62,-1379.2 1284.62,18 -18,18" />
+<text xml:space="preserve" text-anchor="middle" x="633.31" y="-1342.8" font-family="Helvetica,sans-Serif" font-size="16.00">Gordon Chau | Member A</text>
 
 <g id="edge1" class="edge">
 <title>client-&gt;client</title>

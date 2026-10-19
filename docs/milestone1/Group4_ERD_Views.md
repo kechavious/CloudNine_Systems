@@ -1,13 +1,13 @@
 # Group 4 - ERD ownership views
-20 tables; five tables per owner. Names will be mapped to A-D later.
+20 tables; five tables per owner. A: Gordon Chau; B: Lujun Lyu; C: Haochen Zhang; D: Yi Wang.
 Connected overview: every entity appears once, and all cross-domain foreign keys are connected.
 ![All 20 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)
 [Zoomable overview PDF](../../output/pdf/Group4_ERD_Overview.pdf)
 [Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)
 
-## Member A: Clients and reservations
+## Gordon Chau (Member A): Clients and reservations
 5 owned tables. Shaded boxes show primary keys of entities owned by another member.
-![Member A ERD](../../output/svg/Group4_ERD_A.svg)
+![Gordon Chau ERD](../../output/svg/Group4_ERD_A.svg)
 
 <details>
 <summary>Editable Mermaid source</summary>
@@ -88,9 +88,9 @@ erDiagram
 ```
 </details>
 
-## Member B: Infrastructure
+## Lujun Lyu (Member B): Infrastructure
 5 owned tables. Shaded boxes show primary keys of entities owned by another member.
-![Member B ERD](../../output/svg/Group4_ERD_B.svg)
+![Lujun Lyu ERD](../../output/svg/Group4_ERD_B.svg)
 
 <details>
 <summary>Editable Mermaid source</summary>
@@ -139,9 +139,9 @@ erDiagram
 ```
 </details>
 
-## Member C: Deployments and usage
+## Haochen Zhang (Member C): Deployments and usage
 5 owned tables. Shaded boxes show primary keys of entities owned by another member.
-![Member C ERD](../../output/svg/Group4_ERD_C.svg)
+![Haochen Zhang ERD](../../output/svg/Group4_ERD_C.svg)
 
 <details>
 <summary>Editable Mermaid source</summary>
@@ -232,9 +232,9 @@ erDiagram
 ```
 </details>
 
-## Member D: Services and billing
+## Yi Wang (Member D): Services and billing
 5 owned tables. Shaded boxes show primary keys of entities owned by another member.
-![Member D ERD](../../output/svg/Group4_ERD_D.svg)
+![Yi Wang ERD](../../output/svg/Group4_ERD_D.svg)
 
 <details>
 <summary>Editable Mermaid source</summary>

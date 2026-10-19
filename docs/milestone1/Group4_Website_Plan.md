@@ -16,14 +16,14 @@ Filters: consumption period, client, payer account, service and invoice status. 
 
 | Query | Question and output | Main tables | Owner | Page |
 |---|---|---|---|---|
-| Q1 | At a selected time, how much usable and allocated capacity is available in each location? Group by region/zone/data center/type; show asset count and capacity dimensions separately. | region, availability_zone, data_center, resource_type, resource, resource_state, resource_allocation | B; C reviews time logic | Operations |
-| Q2 | Which resource types are most heavily allocated at a selected time? Show allocated fraction divided by usable resource count, grouped by location/type, alongside unavailable resource count. | resource_type, resource, resource_allocation, resource_state, data_center | B | Operations |
-| Q3 | Which approved reservation items are underfulfilled at a selected time within their reservation window? Compare quantity with distinct valid assigned resources and show the client and required location. | client, reservation, reservation_item, deployment, resource_allocation, resource, resource_type | A; C reviews assignments | Operations |
-| Q4 | How much maintenance/failure downtime occurred per location and reason in a date range? Sum clipped non-overlapping state durations. | resource_state, resource, data_center, availability_zone, region | C | Operations |
-| Q5 | Which clients/deployments had resource substitutions, and why? Join predecessor/current allocations, aggregate replacement counts, and expose before/after resources in details. | client, reservation, deployment, resource_allocation, resource | C | Operations |
-| Q6 | For comparable service/deployment periods, how do estimates differ from actual consumption? Show side-by-side quantities and variance, grouped by billing unit. | usage_record, deployment_service, deployment, reservation, client, service | C supplies query/data; D owns Billing display | Billing |
-| Q7 | How do final charges and credits trend by consuming client and service over time? Resolve charge context, aggregate USD amounts, and report provisional totals separately. | charge, usage_record, deployment_service, deployment, reservation, client, service | D | Billing |
-| Q8 | What is each payer's invoice total, and how are charges split among accounts? Aggregate shares by invoice/account; show drafts and issued totals separately with drill-down to charge. | billing_account, client, invoice, charge_share, charge | D; A reviews payer contacts | Billing |
+| Q1 | At a selected time, how much usable and allocated capacity is available in each location? Group by region/zone/data center/type; show asset count and capacity dimensions separately. | region, availability_zone, data_center, resource_type, resource, resource_state, resource_allocation | Lujun Lyu (B); Haochen Zhang reviews time logic | Operations |
+| Q2 | Which resource types are most heavily allocated at a selected time? Show allocated fraction divided by usable resource count, grouped by location/type, alongside unavailable resource count. | resource_type, resource, resource_allocation, resource_state, data_center | Lujun Lyu (B) | Operations |
+| Q3 | Which approved reservation items are underfulfilled at a selected time within their reservation window? Compare quantity with distinct valid assigned resources and show the client and required location. | client, reservation, reservation_item, deployment, resource_allocation, resource, resource_type | Gordon Chau (A); Haochen Zhang reviews assignments | Operations |
+| Q4 | How much maintenance/failure downtime occurred per location and reason in a date range? Sum clipped non-overlapping state durations. | resource_state, resource, data_center, availability_zone, region | Haochen Zhang (C) | Operations |
+| Q5 | Which clients/deployments had resource substitutions, and why? Join predecessor/current allocations, aggregate replacement counts, and expose before/after resources in details. | client, reservation, deployment, resource_allocation, resource | Haochen Zhang (C) | Operations |
+| Q6 | For comparable service/deployment periods, how do estimates differ from actual consumption? Show side-by-side quantities and variance, grouped by billing unit. | usage_record, deployment_service, deployment, reservation, client, service | Haochen Zhang supplies query/data; Yi Wang owns Billing display | Billing |
+| Q7 | How do final charges and credits trend by consuming client and service over time? Resolve charge context, aggregate USD amounts, and report provisional totals separately. | charge, usage_record, deployment_service, deployment, reservation, client, service | Yi Wang (D) | Billing |
+| Q8 | What is each payer's invoice total, and how are charges split among accounts? Aggregate shares by invoice/account; show drafts and issued totals separately with drill-down to charge. | billing_account, client, invoice, charge_share, charge | Yi Wang (D); Gordon Chau reviews payer contacts | Billing |
 
 Q1 is an absolute-capacity comparison; Q2 is a type-level allocation ratio. Keep their interpretation distinct instead of presenting the same result twice. Q3-Q8 add independent fulfillment, reliability, change, metering, spending and payer questions.
 
@@ -54,10 +54,10 @@ Include multiple regions, zones and data centers; diverse resource types; client
 
 | Area | Five retained tables | Website purpose |
 |---|---|---|
-| A | client, user_account, reservation, reservation_item, billing_account | Identify consumers/payers, staff contacts, requests and shortages. |
-| B | region, availability_zone, data_center, resource_type, resource | Filter and compare locations, resource categories and capacity. |
-| C | deployment, resource_allocation, resource_state, deployment_service, usage_record | Explain actual assignment, availability, replacements and consumption. |
-| D | service, service_rate, charge, charge_share, invoice | Explain billable offerings, prices, costs, credits, payer splits and invoice totals. |
+| Gordon Chau (A) | client, user_account, reservation, reservation_item, billing_account | Identify consumers/payers, staff contacts, requests and shortages. |
+| Lujun Lyu (B) | region, availability_zone, data_center, resource_type, resource | Filter and compare locations, resource categories and capacity. |
+| Haochen Zhang (C) | deployment, resource_allocation, resource_state, deployment_service, usage_record | Explain actual assignment, availability, replacements and consumption. |
+| Yi Wang (D) | service, service_rate, charge, charge_share, invoice | Explain billable offerings, prices, costs, credits, payer splits and invoice totals. |
 
 `user_account` provides staff/contact names in details rather than its own dashboard. `service_rate` supports price verification and detail explanations rather than a separate pricing-management page. Other retained tables participate directly in the eight planned queries.
 

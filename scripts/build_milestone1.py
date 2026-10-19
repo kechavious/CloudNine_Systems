@@ -123,6 +123,7 @@ views={
  'C': ('Deployments and usage', ['deployment','resource_allocation','resource_state','deployment_service','usage_record']),
  'D': ('Services and billing', ['service','service_rate','charge','charge_share','invoice']),
 }
+members={'A': 'Gordon Chau', 'B': 'Lujun Lyu', 'C': 'Haochen Zhang', 'D': 'Yi Wang'}
 owner={name:member for member,(_,names) in views.items() for name in names}
 assert set(owner)==set(schema) and sum(len(v[1]) for v in views.values())==N
 def endpoints(name,f):
@@ -134,7 +135,10 @@ def graph(names,overview=False):
  dot=['digraph G {','graph [rankdir=TB, bgcolor="white", nodesep=1.0, ranksep=1.15, splines=ortho, pad=0.25, outputorder=edgesfirst];','node [shape=plain, fontname="Helvetica"];','edge [fontname="Helvetica", fontsize=11, color="#333333", arrowsize=0.85, labeldistance=2.0];']
  if overview:
   dot[1]=dot[1].replace('rankdir=TB','rankdir=LR').replace('ranksep=1.15','ranksep=1.6')
-  dot.append('graph [label="CloudNine Systems - connected ERD overview\\n20 entities | 37 relationships | A: clients | B: infrastructure | C: deployments and usage | D: billing", labelloc=t, fontsize=24, fontname="Helvetica"];')
+  dot.append('graph [label="CloudNine Systems - connected ERD overview\\n20 entities | 37 relationships | A: Gordon Chau | B: Lujun Lyu | C: Haochen Zhang | D: Yi Wang", labelloc=t, fontsize=24, fontname="Helvetica"];')
+ if not overview:
+  member=owner[names[0]]
+  dot.append(f'graph [label="{members[member]} | Member {member}", labelloc=t, fontsize=16, fontname="Helvetica"];')
  for name in names+external:
   ext=name in external; canonical=aliases.get(name,name)
   fs=[f for f in schema[canonical] if f['pk']] if ext else schema[canonical]
@@ -257,9 +261,9 @@ overview_pdf.drawString(30,30,'PK = primary key | FK = foreign key | ? = nullabl
 overview_pdf.save()
 # Editable owner views render directly on GitHub; each repeats only necessary
 # external keys. The .mmd file remains the full schema with all FK relationships.
-parts=['# Group 4 - ERD ownership views',f'{N} tables; five tables per owner. Names will be mapped to A-D later.', 'Connected overview: every entity appears once, and all cross-domain foreign keys are connected.', '![All 20 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)', '[Zoomable overview PDF](../../output/pdf/Group4_ERD_Overview.pdf)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
+parts=['# Group 4 - ERD ownership views',f'{N} tables; five tables per owner. A: Gordon Chau; B: Lujun Lyu; C: Haochen Zhang; D: Yi Wang.', 'Connected overview: every entity appears once, and all cross-domain foreign keys are connected.', '![All 20 entities and relationships](../../output/svg/Group4_ERD_Overview.svg)', '[Zoomable overview PDF](../../output/pdf/Group4_ERD_Overview.pdf)','[Submission PDF](../../output/pdf/Group4_ERD.pdf) | [Analysis and constraints](Group4_Analysis_Draft.md)','']
 for member,(title,names) in views.items():
- parts += [f'## Member {member}: {title}',f'{len(names)} owned tables. Shaded boxes show primary keys of entities owned by another member.',f'![Member {member} ERD](../../output/svg/Group4_ERD_{member}.svg)','', '<details>', '<summary>Editable Mermaid source</summary>', '', '```mermaid','erDiagram','    direction LR']
+ parts += [f'## {members[member]} (Member {member}): {title}',f'{len(names)} owned tables. Shaded boxes show primary keys of entities owned by another member.',f'![{members[member]} ERD](../../output/svg/Group4_ERD_{member}.svg)','', '<details>', '<summary>Editable Mermaid source</summary>', '', '```mermaid','erDiagram','    direction LR']
  external=sorted({x['fk'] for name in names for x in schema[name] if x['fk'] and x['fk'] not in names})
  for name in names:
   for field in schema[name]:
@@ -305,7 +309,7 @@ def pdf_text(md,path):
 # Assignment-style diagrams: four readable domain views.
 c=canvas.Canvas(str(OUT/'Group4_ERD.pdf'),invariant=1)
 c.setTitle('Group 4 - CloudNine Systems - ER diagram')
-pages=[(f'owner_{member}',title+' - ER diagram',f'Member {member}: {len(names)} tables; shaded boxes reference another domain') for member,(title,names) in views.items()]
+pages=[(f'owner_{member}',title+' - ER diagram',f'{members[member]} | Member {member} | {len(names)} tables; shaded boxes reference another domain') for member,(title,names) in views.items()]
 for page,(file,title,subtitle) in enumerate(pages,1):
  d=svg2rlg(str(TMP/f'{file}.svg'))
  w=max(900,d.width+100);h=d.height+245

@@ -23,12 +23,12 @@ Location tables support filters, joins and capacity comparisons; they do not req
 
 | Owner | Five tables | Main implementation responsibility | Reviewed by |
 |---|---|---|---|
-| A | client, user_account, reservation, reservation_item, billing_account | Clients, requests, payer contacts; Q3 and reservation sections | B |
-| B | region, availability_zone, data_center, resource_type, resource | Infrastructure; Q1-Q2 and Operations location/capacity sections | C |
-| C | deployment, resource_allocation, resource_state, deployment_service, usage_record | Assignment, availability and metering; Q4-Q5 and Q6 with D | D |
-| D | service, service_rate, charge, charge_share, invoice | Rates, charges, draft invoices and splits; Q7-Q8, Q6 display, Billing page | A |
+| Gordon Chau (A) | client, user_account, reservation, reservation_item, billing_account | Clients, requests, payer contacts; Q3 and reservation sections | Lujun Lyu (B) |
+| Lujun Lyu (B) | region, availability_zone, data_center, resource_type, resource | Infrastructure; Q1-Q2 and Operations location/capacity sections | Haochen Zhang (C) |
+| Haochen Zhang (C) | deployment, resource_allocation, resource_state, deployment_service, usage_record | Assignment, availability and metering; Q4-Q5 and Q6 with D | Yi Wang (D) |
+| Yi Wang (D) | service, service_rate, charge, charge_share, invoice | Rates, charges, draft invoices and splits; Q7-Q8, Q6 display, Billing page | Gordon Chau (A) |
 
-Table counts are balanced, and documentation/integration tasks offset the heavier temporal and billing logic. A assembles the report, B integrates the schema/shared layout, C coordinates generated documents, and D coordinates submission checks. Names and member acceptance are pending.
+Table counts are balanced, and documentation/integration tasks offset the heavier temporal and billing logic. Gordon Chau (A) assembles the report, Lujun Lyu (B) integrates the schema/shared layout, Haochen Zhang (C) coordinates generated documents, and Yi Wang (D) coordinates submission checks. A: Gordon Chau; B: Lujun Lyu; C: Haochen Zhang; D: Yi Wang. Individual member acceptance remains pending.
 
 ## Simplification decisions
 
@@ -64,6 +64,6 @@ Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Gr
 
 Milestone 1: ERD PDF, draft analysis and clear team planning. Later milestones: all 20 tables, meaningful synthetic activity over at least one quarter, eight aggregate/join queries, two read-only pages, database export, complete source and presentation. The [website plan](docs/milestone1/Group4_Website_Plan.md) specifies responsibilities and verification rules.
 
-Before submission, add member names/GitHub accounts, obtain acceptance of assignments, confirm shared access and ensure the instructor can open the repository. Course deadline, meeting times and member acknowledgment remain pending; they are not claimed as completed.
+Before submission, add member GitHub accounts, obtain acceptance of assignments, confirm shared access and ensure the instructor can open the repository. Course deadline, meeting times and member acknowledgment remain pending; they are not claimed as completed.
 
 The original [project requirements](Group%20Project%20-%20DB.pdf) and [CloudNine scenario](Group%20Project_%20CloudNine%20Systems.pdf) are retained unchanged. Earlier designs remain in Git history.

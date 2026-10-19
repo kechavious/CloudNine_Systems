@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1541.0pt" height="1315pt" viewBox="0.0 0.0 1541.0 1315.0">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1297.2)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1541.0pt" height="1342pt" viewBox="0.0 0.0 1541.0 1342.0">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1324.4)">
 <title>G</title>
-<polygon fill="white" stroke="none" points="-18,18 -18,-1297.2 1363.28,-1297.2 1363.28,18 -18,18" />
+<polygon fill="white" stroke="none" points="-18,18 -18,-1324.4 1363.28,-1324.4 1363.28,18 -18,18" />
+<text xml:space="preserve" text-anchor="middle" x="672.64" y="-1288" font-family="Helvetica,sans-Serif" font-size="16.00">Haochen Zhang | Member C</text>
 
 <g id="edge2" class="edge">
 <title>deployment-&gt;resource_allocation</title>

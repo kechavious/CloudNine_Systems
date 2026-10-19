@@ -3,7 +3,7 @@
 <title>G</title>
 <polygon fill="white" stroke="none" points="-18,18 -18,-2091.6 3129,-2091.6 3129,18 -18,18" />
 <text xml:space="preserve" text-anchor="middle" x="1555.5" y="-2048" font-family="Helvetica,sans-Serif" font-size="24.00">CloudNine Systems - connected ERD overview</text>
-<text xml:space="preserve" text-anchor="middle" x="1555.5" y="-2019.2" font-family="Helvetica,sans-Serif" font-size="24.00">20 entities | 37 relationships | A: clients | B: infrastructure | C: deployments and usage | D: billing</text>
+<text xml:space="preserve" text-anchor="middle" x="1555.5" y="-2019.2" font-family="Helvetica,sans-Serif" font-size="24.00">20 entities | 37 relationships | A: Gordon Chau | B: Lujun Lyu | C: Haochen Zhang | D: Yi Wang</text>
 
 <g id="edge1" class="edge">
 <title>client-&gt;client</title>
