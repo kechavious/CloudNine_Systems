@@ -1,6 +1,16 @@
 # Group 4 - CloudNine Systems
 
-A 20-table database design for a cloud infrastructure information system, organized around a practical two-page Operations and Billing website. This repository currently contains the Milestone 1 design and implementation plan; the database, sample data, SQL queries and website are later work.
+A 20-table database design for a cloud infrastructure information system, organized around a practical two-page Operations and Billing website. Milestone 2 implements the database in SQLite with six months of synthetic data, nine analytical queries, and an Operations and Billing wireframe.
+
+## Milestone 2
+
+- [Submission overview and restore commands](docs/milestone2/Group4_Milestone2.md)
+- [DDL, seed DML, proposed queries and validation](sql/milestone2/)
+- [Initial populated SQLite export](output/db/Group4_Initial_Export.sql)
+- [Executed query results and interpretation](docs/milestone2/Group4_Query_Evidence.md)
+- [Operations and Billing wireframe](docs/milestone2/Group4_Wireframe.html). Open the local HTML in a browser to preview both pages.
+
+Rebuild and verify the Milestone 2 database export, results and wireframe with `python3 scripts/build_milestone2.py`.
 
 ## Current documents
 
@@ -62,7 +72,7 @@ Run `python scripts/build_milestone1.py` with reportlab and svglib installed. Gr
 
 ## Milestones and remaining work
 
-Milestone 1: ERD PDF, draft analysis and clear team planning. Later milestones: all 20 tables, meaningful synthetic activity over at least one quarter, eight aggregate/join queries, two read-only pages, database export, complete source and presentation. The [website plan](docs/milestone1/Group4_Website_Plan.md) specifies responsibilities and verification rules.
+Milestone 1 includes the ERD, analysis and team plan. Milestone 2 includes the populated 20-table database, nine queries and the wireframe. The final project calls for a database-backed web interface, final source and a presentation. The [website plan](docs/milestone1/Group4_Website_Plan.md) specifies responsibilities and verification rules.
 
 Before submission, add member GitHub accounts, obtain acceptance of assignments, confirm shared access and ensure the instructor can open the repository. Course deadline, meeting times and member acknowledgment remain pending; they are not claimed as completed.
 

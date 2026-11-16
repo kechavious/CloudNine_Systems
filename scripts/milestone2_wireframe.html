@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CloudNine Systems · Group 4 Wireframe</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #15243b;
+    --subtle: #526078;
+    --line: #d8e2ed;
+    --paper: #f2f6fa;
+    --blue: #2458a6;
+    --pale: #b8d1f0;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  .container { max-width: 1200px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 44px); }
+  header { background: #172c48; color: white; }
+  .mast { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; min-height: 68px; padding-block: 12px; }
+  .brand { font-size: 1.17rem; font-weight: 750; letter-spacing: -.015em; white-space: nowrap; }
+  nav { display: flex; gap: 4px; }
+  nav a { color: #e1edfb; border-radius: 6px; font-weight: 650; text-decoration: none; padding: 8px 13px; }
+  nav a:hover, nav a[aria-current="page"] { background: #dceafb; color: var(--ink); }
+  :focus-visible { outline: 2px solid #3379dd; outline-offset: 3px; }
+  main { padding-block: 30px 44px; }
+  h1 { font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -.042em; margin: 0; line-height: 1.1; }
+  h2 { font-size: 1.14rem; letter-spacing: -.014em; line-height: 1.25; margin: 0 0 4px; }
+  p { margin: 0 0 14px; color: var(--subtle); }
+  .intro { margin: 8px 0 21px; }
+  .controls { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 17px; }
+  .filter { border: 1px solid var(--line); background: #fff; color: var(--subtle); border-radius: 7px; padding: 7px 11px; font-size: .86rem; }
+  .filter b { color: var(--ink); margin-inline-end: 5px; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat, .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+  .stat { padding: 14px 16px; border-top: 3px solid var(--blue); }
+  .stat span, .stat small { color: var(--subtle); display: block; }
+  .stat strong { display: block; font-size: clamp(1.45rem, 3vw, 2.25rem); line-height: 1.1; letter-spacing: -.035em; margin: 6px 0; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .card { padding: 16px; min-width: 0; }
+  .wide { grid-column: 1 / -1; }
+  .chart { display: grid; gap: 9px; }
+  .bar-row { display: grid; grid-template-columns: 96px minmax(36px, 1fr) minmax(102px, max-content); align-items: center; gap: 8px; font-size: .81rem; }
+  .bar-row small { font-size: inherit; color: var(--subtle); }
+  .track { display: flex; height: 11px; border-radius: 3px; background: #edf2f8; overflow: hidden; }
+  .track i { display: block; height: 100%; background: var(--blue); }
+  .track i + i { background: var(--pale); }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; text-align: left; }
+  thead { background: #edf3fa; }
+  th, td { padding: 7px 9px; border-bottom: 1px solid var(--line); }
+  th { white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  footer { font-size: .83rem; color: var(--subtle); padding-block: 12px 25px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  @media (max-width: 550px) {
+    .stats { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 78px minmax(35px, 1fr) 103px; gap: 6px; }
+  }
+  @media print {
+    body, header { background: white; color: #111; }
+    .container { padding-inline: 0; }
+    nav { display: none; }
+    [hidden] { display: block !important; }
+    .panel + .panel { break-before: page; }
+    .card { break-inside: avoid; }
+    .track { print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="container mast">
+    <div class="brand">CloudNine Systems</div>
+    <nav aria-label="Dashboard pages">
+      <a href="#operations" aria-current="page">Operations</a>
+      <a href="#billing">Billing</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section id="operations" class="panel" aria-labelledby="ops-heading">
+    <h1 id="ops-heading">Operations</h1>
+    <p class="intro">Capacity, reservation fulfillment, and service interruptions.</p>
+    <div class="controls">
+      <div class="filter"><b>Snapshot (UTC)</b> Sep 10, 2026 at 12:00</div>
+      <div class="filter"><b>Activity period</b> May–October 2026</div>
+      <div class="filter"><b>Regions</b> All</div>
+    </div>
+    <div class="stats">@@OPS_STATS@@</div>
+    <div class="grid">
+      <section class="card">
+        <h2>Compute capacity by data center</h2>
+        <p>Allocated and free vCPUs on usable hosts · Q1</p>
+        <div class="chart">@@CAPACITY@@</div>
+      </section>
+      <section class="card">
+        <h2>Downtime by month</h2>
+        <p>Failure and maintenance resource-hours · Q4</p>
+        <div class="chart">@@DOWNTIME@@</div>
+      </section>
+      <section class="card">
+        <h2>Allocation by region and resource</h2>
+        <p>Fraction of usable asset-equivalents allocated · Q2</p>
+        @@RATIOS@@
+      </section>
+      <section class="card">
+        <h2>Reservation shortfalls</h2>
+        <p>Approved requests in progress at the snapshot · Q3</p>
+        @@SHORTFALLS@@
+      </section>
+      <section class="card wide">
+        <h2>Atlas Labs replacement</h2>
+        <p>Representative substitution showing the original and replacement resource · Q5</p>
+        @@REPLACEMENTS@@
+      </section>
+    </div>
+  </section>
+  <section id="billing" class="panel" aria-labelledby="billing-heading" hidden>
+    <h1 id="billing-heading">Billing</h1>
+    <p class="intro">Metered usage, posted charges, and payer reconciliation.</p>
+    <div class="controls">
+      <div class="filter"><b>Activity period</b> May–October 2026</div>
+      <div class="filter"><b>Currency</b> USD</div>
+      <div class="filter"><b>Clients and payers</b> All</div>
+    </div>
+    <div class="stats">@@BILL_STATS@@</div>
+    <div class="grid">
+      <section class="card">
+        <h2>Compute usage against estimate</h2>
+        <p>Comparable periods with both readings, in vCPU-hours · Q6</p>
+        @@USAGE@@
+      </section>
+      <section class="card">
+        <h2>Fees and credits by posting month</h2>
+        <p>All consuming clients and services, in USD · Q7</p>
+        @@POSTING@@
+      </section>
+      <section class="card wide">
+        <h2>Invoice totals and payer split</h2>
+        <p>@@INVOICE_SUMMARY@@ · Q8</p>
+        <h2>Atlas Labs invoice lines</h2>
+        <p>@@FOCAL_TEXT@@</p>
+        @@SHARES@@
+      </section>
+      <section class="card wide">
+        <h2>Draft reconciliation queue</h2>
+        <p>Posted charges with incomplete allocations · Q9</p>
+        @@REVIEW@@
+      </section>
+    </div>
+  </section>
+</main>
+<footer class="container">Group 4 · Milestone 2 wireframe · Recorded query results from the synthetic database</footer>
+<script>
+  const destinations = [...document.querySelectorAll('nav a')];
+  const panels = [...document.querySelectorAll('.panel')];
+  function showPage() {
+    const active = location.hash === '#billing' ? '#billing' : '#operations';
+    panels.forEach(panel => { panel.hidden = '#' + panel.id !== active; });
+    destinations.forEach(link => {
+      if (link.hash === active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  }
+  addEventListener('hashchange', showPage);
+  showPage();
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CloudNine Systems · Group 4 Wireframe</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #15243b;
+    --subtle: #526078;
+    --line: #d8e2ed;
+    --paper: #f2f6fa;
+    --blue: #2458a6;
+    --pale: #b8d1f0;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 15px/1.55 Inter, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  .container { max-width: 1200px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 44px); }
+  header { background: #172c48; color: white; }
+  .mast { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; min-height: 68px; padding-block: 12px; }
+  .brand { font-size: 1.17rem; font-weight: 750; letter-spacing: -.015em; white-space: nowrap; }
+  nav { display: flex; gap: 4px; }
+  nav a { color: #e1edfb; border-radius: 6px; font-weight: 650; text-decoration: none; padding: 8px 13px; }
+  nav a:hover, nav a[aria-current="page"] { background: #dceafb; color: var(--ink); }
+  :focus-visible { outline: 2px solid #3379dd; outline-offset: 3px; }
+  main { padding-block: 30px 44px; }
+  h1 { font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -.042em; margin: 0; line-height: 1.1; }
+  h2 { font-size: 1.14rem; letter-spacing: -.014em; line-height: 1.25; margin: 0 0 4px; }
+  p { margin: 0 0 14px; color: var(--subtle); }
+  .intro { margin: 8px 0 21px; }
+  .controls { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 17px; }
+  .filter { border: 1px solid var(--line); background: #fff; color: var(--subtle); border-radius: 7px; padding: 7px 11px; font-size: .86rem; }
+  .filter b { color: var(--ink); margin-inline-end: 5px; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat, .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+  .stat { padding: 14px 16px; border-top: 3px solid var(--blue); }
+  .stat span, .stat small { color: var(--subtle); display: block; }
+  .stat strong { display: block; font-size: clamp(1.45rem, 3vw, 2.25rem); line-height: 1.1; letter-spacing: -.035em; margin: 6px 0; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .card { padding: 16px; min-width: 0; }
+  .wide { grid-column: 1 / -1; }
+  .chart { display: grid; gap: 9px; }
+  .bar-row { display: grid; grid-template-columns: 96px minmax(36px, 1fr) minmax(102px, max-content); align-items: center; gap: 8px; font-size: .81rem; }
+  .bar-row small { font-size: inherit; color: var(--subtle); }
+  .track { display: flex; height: 11px; border-radius: 3px; background: #edf2f8; overflow: hidden; }
+  .track i { display: block; height: 100%; background: var(--blue); }
+  .track i + i { background: var(--pale); }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; text-align: left; }
+  thead { background: #edf3fa; }
+  th, td { padding: 7px 9px; border-bottom: 1px solid var(--line); }
+  th { white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  footer { font-size: .83rem; color: var(--subtle); padding-block: 12px 25px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  @media (max-width: 550px) {
+    .stats { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 78px minmax(35px, 1fr) 103px; gap: 6px; }
+  }
+  @media print {
+    body, header { background: white; color: #111; }
+    .container { padding-inline: 0; }
+    nav { display: none; }
+    [hidden] { display: block !important; }
+    .panel + .panel { break-before: page; }
+    .card { break-inside: avoid; }
+    .track { print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="container mast">
+    <div class="brand">CloudNine Systems</div>
+    <nav aria-label="Dashboard pages">
+      <a href="#operations" aria-current="page">Operations</a>
+      <a href="#billing">Billing</a>
+    </nav>
+  </div>
+</header>
+<main class="container">
+  <section id="operations" class="panel" aria-labelledby="ops-heading">
+    <h1 id="ops-heading">Operations</h1>
+    <p class="intro">Capacity, reservation fulfillment, and service interruptions.</p>
+    <div class="controls">
+      <div class="filter"><b>Snapshot (UTC)</b> Sep 10, 2026 at 12:00</div>
+      <div class="filter"><b>Activity period</b> May–October 2026</div>
+      <div class="filter"><b>Regions</b> All</div>
+    </div>
+    <div class="stats"><div class='stat'><span>Free compute capacity</span><strong>560</strong><small>vCPUs · 9 data centers</small></div><div class='stat'><span>Unfulfilled reservation items</span><strong>1</strong><small>At the selected snapshot</small></div><div class='stat'><span>Failure impact</span><strong>288 h</strong><small>Resource-hours · May–October</small></div></div>
+    <div class="grid">
+      <section class="card">
+        <h2>Compute capacity by data center</h2>
+        <p>Allocated and free vCPUs on usable hosts · Q1</p>
+        <div class="chart"><div class='bar-row'><span>Amsterdam DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>Dublin DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>Frankfurt DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>Boston DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>Newark DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>Portland DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>San Jose DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>Seattle DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:80.000%'></i></div><small>16 vCPU allocated · 64 vCPU free</small></div><div class='bar-row'><span>Ashburn DC</span><div class='track' aria-hidden='true'><i style='width:20.000%'></i><i style='width:60.000%'></i></div><small>16 vCPU allocated · 48 vCPU free</small></div></div>
+      </section>
+      <section class="card">
+        <h2>Downtime by month</h2>
+        <p>Failure and maintenance resource-hours · Q4</p>
+        <div class="chart"><div class='bar-row'><span>2026-05</span><div class='track' aria-hidden='true'><i style='width:27.273%'></i><i style='width:18.182%'></i></div><small>24 h failure · 16 h maintenance</small></div><div class='bar-row'><span>2026-06</span><div class='track' aria-hidden='true'><i style='width:27.273%'></i><i style='width:18.182%'></i></div><small>24 h failure · 16 h maintenance</small></div><div class='bar-row'><span>2026-07</span><div class='track' aria-hidden='true'><i style='width:54.545%'></i><i style='width:18.182%'></i></div><small>48 h failure · 16 h maintenance</small></div><div class='bar-row'><span>2026-08</span><div class='track' aria-hidden='true'><i style='width:54.545%'></i><i style='width:18.182%'></i></div><small>48 h failure · 16 h maintenance</small></div><div class='bar-row'><span>2026-09</span><div class='track' aria-hidden='true'><i style='width:81.818%'></i><i style='width:18.182%'></i></div><small>72 h failure · 16 h maintenance</small></div><div class='bar-row'><span>2026-10</span><div class='track' aria-hidden='true'><i style='width:81.818%'></i><i style='width:18.182%'></i></div><small>72 h failure · 16 h maintenance</small></div></div>
+      </section>
+      <section class="card">
+        <h2>Allocation by region and resource</h2>
+        <p>Fraction of usable asset-equivalents allocated · Q2</p>
+        <div class='scroll' tabindex='0'><table><thead><tr><th scope='col'>Region</th><th scope='col'>Resource</th><th scope='col'>Usable assets</th><th scope='col'>Unavailable</th><th scope='col'>Allocated (%)</th></tr></thead><tbody><tr><td>US East</td><td>Compute</td><td>11</td><td>1</td><td>27.27</td></tr><tr><td>EU Central</td><td>Compute</td><td>12</td><td>0</td><td>25.00</td></tr><tr><td>US West</td><td>Compute</td><td>12</td><td>0</td><td>25.00</td></tr><tr><td>EU Central</td><td>Block Storage</td><td>12</td><td>0</td><td>20.83</td></tr><tr><td>US East</td><td>Block Storage</td><td>12</td><td>0</td><td>20.83</td></tr><tr><td>US West</td><td>Block Storage</td><td>12</td><td>0</td><td>20.83</td></tr><tr><td>EU Central</td><td>Network Egress</td><td>12</td><td>0</td><td>12.50</td></tr><tr><td>US East</td><td>Network Egress</td><td>12</td><td>0</td><td>12.50</td></tr><tr><td>US West</td><td>Network Egress</td><td>12</td><td>0</td><td>12.50</td></tr></tbody></table></div>
+      </section>
+      <section class="card">
+        <h2>Reservation shortfalls</h2>
+        <p>Approved requests in progress at the snapshot · Q3</p>
+        <div class='scroll' tabindex='0'><table><thead><tr><th scope='col'>Client</th><th scope='col'>Location</th><th scope='col'>Resource</th><th scope='col'>Requested</th><th scope='col'>Fulfilled</th><th scope='col'>Shortfall</th></tr></thead><tbody><tr><td>Atlas Labs</td><td>Ashburn DC</td><td>Compute</td><td>2</td><td>1</td><td>1</td></tr></tbody></table></div>
+      </section>
+      <section class="card wide">
+        <h2>Atlas Labs replacement</h2>
+        <p>Representative substitution showing the original and replacement resource · Q5</p>
+        <div class='scroll' tabindex='0'><table><thead><tr><th scope='col'>Deployment</th><th scope='col'>Replacement</th><th scope='col'>Start (UTC)</th><th scope='col'>Cause</th></tr></thead><tbody><tr><td>Atlas Analytics / September</td><td>Ashburn DC/CMP-01 → Ashburn DC/CMP-04</td><td>2026-09-11 00:00:00</td><td>Hardware failure</td></tr></tbody></table></div>
+      </section>
+    </div>
+  </section>
+  <section id="billing" class="panel" aria-labelledby="billing-heading" hidden>
+    <h1 id="billing-heading">Billing</h1>
+    <p class="intro">Metered usage, posted charges, and payer reconciliation.</p>
+    <div class="controls">
+      <div class="filter"><b>Activity period</b> May–October 2026</div>
+      <div class="filter"><b>Currency</b> USD</div>
+      <div class="filter"><b>Clients and payers</b> All</div>
+    </div>
+    <div class="stats"><div class='stat'><span>Posted net charges</span><strong>$148,779.04</strong><small>USD · May–October</small></div><div class='stat'><span>Posted credits</span><strong>−$6.00</strong><small>USD · May–October</small></div><div class='stat'><span>Charges to review</span><strong>2</strong><small>Draft reconciliation queue</small></div></div>
+    <div class="grid">
+      <section class="card">
+        <h2>Compute usage against estimate</h2>
+        <p>Comparable periods with both readings, in vCPU-hours · Q6</p>
+        <div class='scroll' tabindex='0'><table><thead><tr><th scope='col'>Month</th><th scope='col'>Estimated</th><th scope='col'>Actual</th><th scope='col'>Variance (%)</th></tr></thead><tbody><tr><td>2026-05</td><td>34,109.00</td><td>34,932.00</td><td>2.41</td></tr><tr><td>2026-06</td><td>32,820.00</td><td>33,684.00</td><td>2.63</td></tr><tr><td>2026-07</td><td>33,336.00</td><td>33,929.00</td><td>1.78</td></tr><tr><td>2026-08</td><td>31,839.00</td><td>32,349.00</td><td>1.60</td></tr><tr><td>2026-09</td><td>32,183.00</td><td>32,709.00</td><td>1.63</td></tr><tr><td>2026-10</td><td>32,615.00</td><td>33,686.00</td><td>3.28</td></tr></tbody></table></div>
+      </section>
+      <section class="card">
+        <h2>Fees and credits by posting month</h2>
+        <p>All consuming clients and services, in USD · Q7</p>
+        <div class='scroll' tabindex='0'><table><thead><tr><th scope='col'>Month</th><th scope='col'>Fees</th><th scope='col'>Credits</th><th scope='col'>Net</th></tr></thead><tbody><tr><td>2026-05</td><td>24,026.27</td><td>0.00</td><td>24,026.27</td></tr><tr><td>2026-06</td><td>23,558.17</td><td>0.00</td><td>23,558.17</td></tr><tr><td>2026-07</td><td>23,826.88</td><td>0.00</td><td>23,826.88</td></tr><tr><td>2026-08</td><td>25,567.44</td><td>0.00</td><td>25,567.44</td></tr><tr><td>2026-09</td><td>25,710.41</td><td>-6.00</td><td>25,704.41</td></tr><tr><td>2026-10</td><td>26,095.87</td><td>0.00</td><td>26,095.87</td></tr></tbody></table></div>
+      </section>
+      <section class="card wide">
+        <h2>Invoice totals and payer split</h2>
+        <p>Issued (112): $119,402.28 · Draft (35): $29,307.76 · Q8</p>
+        <h2>Atlas Labs invoice lines</h2>
+        <p>11 September, Compute: 100 vCPU-hours estimated, 120 actual · Charge #3606, $60.00 before credit.</p>
+        <div class='scroll' tabindex='0'><table><thead><tr><th scope='col'>Line type</th><th scope='col'>Payer account</th><th scope='col'>Invoice</th><th scope='col'>Status</th><th scope='col'>Share (USD)</th></tr></thead><tbody><tr><td>metered</td><td>Atlas Labs Billing</td><td>109</td><td>issued</td><td>36.00</td></tr><tr><td>metered</td><td>Northstar Research Foundation Billing</td><td>110</td><td>issued</td><td>24.00</td></tr><tr><td>credit</td><td>Atlas Labs Billing</td><td>109</td><td>issued</td><td>-3.60</td></tr><tr><td>credit</td><td>Northstar Research Foundation Billing</td><td>110</td><td>issued</td><td>-2.40</td></tr></tbody></table></div>
+      </section>
+      <section class="card wide">
+        <h2>Draft reconciliation queue</h2>
+        <p>Posted charges with incomplete allocations · Q9</p>
+        <div class='scroll' tabindex='0'><table><thead><tr><th scope='col'>Charge</th><th scope='col'>Charge (USD)</th><th scope='col'>Allocated</th><th scope='col'>Difference</th><th scope='col'>Issue</th></tr></thead><tbody><tr><td>4816</td><td>68.00</td><td>0.00</td><td>68.00</td><td>Unallocated</td></tr><tr><td>4727</td><td>51.50</td><td>50.50</td><td>1.00</td><td>Underallocated</td></tr></tbody></table></div>
+      </section>
+    </div>
+  </section>
+</main>
+<footer class="container">Group 4 · Milestone 2 wireframe · Recorded query results from the synthetic database</footer>
+<script>
+  const destinations = [...document.querySelectorAll('nav a')];
+  const panels = [...document.querySelectorAll('.panel')];
+  function showPage() {
+    const active = location.hash === '#billing' ? '#billing' : '#operations';
+    panels.forEach(panel => { panel.hidden = '#' + panel.id !== active; });
+    destinations.forEach(link => {
+      if (link.hash === active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  }
+  addEventListener('hashchange', showPage);
+  showPage();
+</script>
+</body>
+</html>
