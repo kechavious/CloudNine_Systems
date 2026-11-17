@@ -4,14 +4,21 @@ CloudNine rents shared compute, block storage and network capacity. The database
 
 ## Submission files
 
-| Deliverable | Files |
+| Assignment requirement | Submitted evidence |
 | --- | --- |
-| Database definition and population | [DDL](../../sql/milestone2/01_schema.sql) and [DML](../../sql/milestone2/02_seed.sql) |
-| Proposed and executed queries | [Q1–Q9 SQL](../../sql/milestone2/03_queries.sql) and [query outputs with interpretation](Group4_Query_Evidence.md) |
-| Initial populated export | [Group4_Initial_Export.sql](../../output/db/Group4_Initial_Export.sql) |
-| Web interface wireframe | [Group4_Wireframe.html](Group4_Wireframe.html). Open this file in a browser and select Operations or Billing. |
-| Verification and regeneration | [Integrity SQL](../../sql/milestone2/04_validate.sql) and [build script](../../scripts/build_milestone2.py) |
-| Design reference | [Milestone 1 ERD](../../output/pdf/Group4_ERD.pdf), [analysis and business rules](../milestone1/Group4_Analysis_Draft.md) and [team responsibilities](../milestone1/Group4_Team_Statement.md) |
+| Database implementation and 3NF | [DDL](../../sql/milestone2/01_schema.sql) defines the 20 tables. [DML](../../sql/milestone2/02_seed.sql) loads 24,459 rows spanning May through October 2026. See [Schema and normalization](#schema-and-normalization) for the design rationale. |
+| Proposed queries and interpretation | [Q1–Q9 SQL](../../sql/milestone2/03_queries.sql) and [executed results with interpretation](Group4_Query_Evidence.md). |
+| Initial database export | [Populated SQLite SQL dump](../../output/db/Group4_Initial_Export.sql). The submission ZIP in the repository README also includes the populated `.sqlite3` file. |
+| Web interface wireframe | [Download the interactive HTML](Group4_Wireframe.html) and open it locally in a browser. The [PDF report](../../output/pdf/Group4_Milestone2.pdf) includes screenshots of both views on pages 4–5. |
+
+## Queries in the wireframe
+
+| View | What the recorded query results show |
+| --- | --- |
+| Operations | Q1 compares available capacity by site. Q2 compares allocation ratios by region and resource. Q3 identifies reservation shortfalls. Q4 measures failure and maintenance hours. Q5 traces replacement equipment. |
+| Billing | Q6 compares usage with estimates. Q7 summarizes fees and credits. Q8 shows invoice totals and split payments. Q9 flags charges that need reconciliation. |
+
+The mockup uses fixed query results from the initial export. The two views cross-link the Atlas Labs case so a reviewer can follow the resource replacement and the related invoice split.
 
 ## Schema and normalization
 
@@ -24,7 +31,7 @@ Two physical choices clarify the implementation:
 - `invoice.issuedAt` is nullable while the invoice is a draft and required on issuance. The DML creates a draft, inserts its shares and then updates eligible invoices to issued.
 - `unitPrice`, `amount` and `allocatedAmount` store integer USD cents. SQL formats monetary outputs in USD. The fixture uses prices in whole cents per billing unit.
 
-Keys, local constraints and issuance triggers run in the database. Triggers block changes to issued invoices, posted charges and shares of charges linked to an issued invoice. Issuance requires a nonempty invoice whose charges are posted and fully allocated. Cross-table audit rules such as time windows, resource capacity and valid rate selection are checked by `04_validate.sql` during the build. The wireframe displays recorded results for fixed filters. Production workflows such as authorization, live provisioning, invoice settlement and automatic correction are outside this milestone's scope.
+Keys, local constraints and issuance triggers run in the database. Triggers block changes to issued invoices, posted charges and shares of charges linked to an issued invoice. Issuance requires a nonempty invoice whose charges are posted and fully allocated. Cross-table audit rules such as time windows, resource capacity and valid rate selection are checked by [the integrity audit](../../sql/milestone2/04_validate.sql) during the build.
 
 ## Data design
 
@@ -41,11 +48,10 @@ Q9 also demonstrates two October exceptions that have yet to be fully assigned t
 
 ## Restore and run
 
-From the repository root, use a fresh local database file. SQLite CLI dot commands are shown below.
+From the repository root, run the following to restore the export into a fresh in-memory database, validate it, and execute Q1–Q9.
 
 ```sh
-mkdir -p tmp
-sqlite3 -bail tmp/cloudnine_m2.db <<'SQL'
+sqlite3 -bail :memory: <<'SQL'
 .read output/db/Group4_Initial_Export.sql
 PRAGMA foreign_key_check;
 PRAGMA integrity_check;
@@ -62,6 +68,9 @@ SQL
 
 The foreign key and business checks return zero rows. The database integrity check prints `ok`. For a schema-and-seed build on an empty database, apply `01_schema.sql` then `02_seed.sql`. For a full reproducibility check, run `python3 scripts/build_milestone2.py` using Python 3.10+ with SQLite 3.38+. The script regenerates the seed, export, evidence and wireframe. It verifies restore equivalence for all nine query results, checks the outage boundary and date clipping, tests missing and corrected measurements, and confirms incomplete invoices are blocked and immutable records reject edits. Q1–Q3 use the snapshot. Q4–Q7 and Q9 use the activity range. Q8 reports all invoices in the initial export.
 
-## Repository submission
+## Design and build references
 
-The [course project brief](../../Group%20Project%20-%20DB.pdf) lists GitHub as the group destination for project deliverables. Put the Milestone 2 SQL, export, wireframe, results and source in the group repository. Share the GitHub commit or milestone folder link through the course submission page according to the instructor's directions. The brief references Assignment 5 for the database export format. This package uses a restorable SQLite SQL export. Check the course submission page for any additional file type or upload requirement.
+- [Milestone 1 ERD](../../output/pdf/Group4_ERD.pdf)
+- [Analysis and business rules](../milestone1/Group4_Analysis_Draft.md)
+- [Team responsibilities](../milestone1/Group4_Team_Statement.md)
+- [Reproducible build script](../../scripts/build_milestone2.py)
