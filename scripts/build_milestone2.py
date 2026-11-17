@@ -247,7 +247,7 @@ def bars(rows, first, second, unit):
         f"<div class='bar-row'><span>{escape(label)}</span>"
         f"<div class='track' aria-hidden='true'><i style='width:{100 * a / maximum:.3f}%'></i>"
         f"<i style='width:{100 * b / maximum:.3f}%'></i></div>"
-        f"<small>{a:g} {unit} {first} · {b:g} {unit} {second}</small></div>"
+        f"<small aria-label='{a:g} {unit} {first}, {b:g} {unit} {second}'>{a:g} / {b:g}</small></div>"
         for label, a, b in rows
     )
 
@@ -267,6 +267,19 @@ def wireframe(results, focal, shares):
     for row in results["Q8"]:
         invoice_total[row["status"]].append(row)
     compute_usage = [r for r in results["Q6"] if r["service"] == "Compute"]
+    variance_scale = max((abs(r["variance_pct"]) for r in compute_usage if r["variance_pct"] is not None),
+                         default=0) or 1
+    variance_rows = []
+    for row in compute_usage:
+        percent = row["variance_pct"]
+        if percent is None:
+            bar, label = "", "—"
+        else:
+            direction = "below" if percent < 0 else "above"
+            bar = f"<i class='{direction}' style='width:{50 * abs(percent) / variance_scale:.3f}%'></i>"
+            label = f"{percent:+.2f}%"
+        variance_rows.append(f"<div class='bar-row'><span>{escape(row['month'])}</span>"
+                             f"<div class='track variance' aria-hidden='true'>{bar}</div><small>{label}</small></div>")
     replacements = [r for r in results["Q5"] if r["client"] == "Atlas Labs"]
     total_vcpu = sum(r["free_vcpu"] for r in compute_capacity)
     failure_hours = sum(month["failed"] for month in downtime.values())
@@ -299,6 +312,7 @@ def wireframe(results, focal, shares):
         )),
         "USAGE": html_table(compute_usage, (("month", "Month"), ("paired_estimate", "Estimated"),
                                            ("paired_actual", "Actual"), ("variance_pct", "Variance (%)"))),
+        "VARIANCE": "".join(variance_rows),
         "POSTING": html_table(month_totals, (("month", "Month"), ("fees_usd", "Fees"),
                                             ("credits_usd", "Credits"), ("net_usd", "Net"))),
         "INVOICE_SUMMARY": " · ".join(

@@ -4,6 +4,8 @@ A 20-table database design for a cloud infrastructure information system, organi
 
 ## Milestone 2
 
+- [Group 4 submission package (ZIP)](output/Group4_Milestone2_Submission.zip)
+- [Milestone 2 report and interface screenshots (PDF)](output/pdf/Group4_Milestone2.pdf)
 - [Submission overview and restore commands](docs/milestone2/Group4_Milestone2.md)
 - [DDL, seed DML, proposed queries and validation](sql/milestone2/)
 - [Initial populated SQLite export](output/db/Group4_Initial_Export.sql)
